@@ -1,4 +1,5 @@
 #summary One-sentence summary of this page.
+#labels Phase-Requirements,Featured
 
 
 
@@ -25,6 +26,7 @@ pero bueh.
  * una carrera donde el autito se manjea, no a friccion, si no directamente moviendo el mouse como si fuera el autito. detectando, obviamente, si se levanta el mouse (como? si se detiene el movimiento es una opcion) y teniendo en cuenta que para ir para adelante hay que mover el mouse para adelante y para doblar, hay que moverlo ligeramente para los costados, o algo asi.
  * a ver quien tira el mouse mas lejos: simple, hay que tirar el mouse, arrastrando, para llegar lejos. Para verificar que lo esta soltando, al mismo tiempo tiene que apretar como loco cosas en el teclado en rapida sucecion. Queda abierta la posibilidad que alguien se tire al piso con la laptop, mueva el mouse con el pie y apriete las teclas con la mano, todo estirado en el piso... y bueh, asi lo hacen los capos! :-) claro que la velocidad tambien importa, asi que los capos tiene que moverse muy rapido!
  * juegito de patinar o esquiar, o lustrar los pisos con patines de paño: se juega con un mouse atado a cada pie (por lo menos asi lo juegan los campeones). Hay que patinar sobre los mouses... a falta de valor se puede jugar con las manos, simulando el movimiento.
+ * Pool o Billar con varios mouses. Tenes que ubicar los mouses inalambricos sobre la mesa, y con el mango de la escoba, primero le untas tiza y luego le pegas al mouse que mas blanco sea, tratando de hacer tres bandas dentro de la mesa.
 
 === teclado ===
  * decatlon: 2 teclas, y la velocidad con la que se intercalan define la velocidad que corre un muñequito. Tambien quizas se pueda medir la fuerza con la que aprietan la tecla usando el microfono: si el sonido entra antes que la tecla, se ignora (trampa), si no, yo creo que se puede correlacionar bastante bien. Se mide el volumen, y eso es la fuerza.
