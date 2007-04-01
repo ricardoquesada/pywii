@@ -16,15 +16,16 @@ class xmenu:
         self.ss = ss #scene state
         
     def get(self, group):
-        return self.options[self.d[group]]
+        if group in self.groups:
+            return self.options[self.d[group]]
     def release(self, group):
-        print self.options[self.d[group]]
+        pass #print self.options[self.d[group]]
         
     def calc(self):
-        def r1(coef, r, k):
-            """returns 2 puntos"""
-            return [(r*math.sin(coef*k), r*math.cos(coef*k)),
-                    (r*math.sin(coef*(k+1)), r*math.cos(coef*(k+1)))]
+        #def r1(coef, r, k):
+        #    """returns 2 puntos"""
+        #    return [(r*math.sin(coef*k), r*math.cos(coef*k)),
+        #            (r*math.sin(coef*(k+1)), r*math.cos(coef*(k+1)))]
         def r2(startAng, coef2, r, k):
             """returns 2 puntos"""
             return [(r*math.sin(startAng), r*math.cos(startAng)),
@@ -43,16 +44,15 @@ class xmenu:
         bandRatio=7.0/8
         for k in range(count):
             groups.append(qgl.scene.Group())
-            v = [(0,0)]+ r1(coef,r*bandRatio,k)+r1(coef,r,k)
             v = [(0,0)]+ r2(coef*k+cc,coef2,r*bandRatio,k)+r2(coef*k+cc,coef2,r,k)
             ##groups[k].add(texture, sphere)
             ##groups[k].translate = (r*math.sin(c), r*math.cos(c), 0) 
             ##groups[k].scale = (1, 1, 1)
+            #v = [(0,0)]+ r1(coef,r*bandRatio,k)+r1(coef,r,k)
             #groups[k].add( texture, leafs.Triangle(v) )
             groups[k].add( leafs.PorcionMuzza(v) )
             groups[k].selectable = True
             self.d[groups[k]]=k
-            
             
         self.groups = groups
         
@@ -65,10 +65,7 @@ class xmenu:
         t = group.scale
         if t[0]>1:
             group.scale=1,1,t[2]
-    def keydown(self, event):
-        pass
-    def keyup (self, event):
-        pass
+            
     def moves(self, groups):
         oldselected = self.selected
         groups = filter(lambda g:g in self.groups, groups)
@@ -78,11 +75,15 @@ class xmenu:
         for oldg in oldselected:
             if oldg not in groups:
                 self.mouseOut(oldg)
+
+    def keydown(self, event):
+        pass
+    def keyup (self, event):
+        pass
     
     def addTo(self, viewport):
         self.selected=[]
         self.calc()
-        print self.groups
         viewport.add( *self.groups )
         
     def delFrom(self, viewport):
