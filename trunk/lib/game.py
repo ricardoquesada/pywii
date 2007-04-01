@@ -21,8 +21,8 @@ class Game:
         while not self.quit:
 
             self._update_event()
-            self.clock.tick(fps)
-            self.scene.update()
+            dt = self.clock.tick(fps)
+            self.scene.update(dt)
             self.scene.render()
             pygame.display.flip()
         
