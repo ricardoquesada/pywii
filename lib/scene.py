@@ -6,8 +6,8 @@ class NotImplementedError(Exception):
 
 class Scene:
 
-    def __init__(self, world):
-        self.world = world
+    def __init__(self, game):
+        self.game = game
         self.compiler = qgl.render.Compiler()
         self.renderer = qgl.render.Render()
         self.root_node = qgl.scene.Root()
