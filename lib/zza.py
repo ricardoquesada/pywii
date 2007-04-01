@@ -19,12 +19,10 @@ class xmenu:
         self.selected=[]
         
     def select(self, group, ev):
-        #print 1
         if group in self.groups:
-            #print 2
             elemento = self.options[self.d[group]]
-            print elemento
             self.callbacks[elemento](ev)
+            self.hide()
             
     def calc(self, pos):
         #def r1(coef, r, k):
@@ -91,12 +89,12 @@ class xmenu:
         self.viewport.accept(self.scene.compiler)
         self.shown=True
         
-    def hide(self, pos):
+    def hide(self):
         self.viewport.remove( *self.groups )    
         self.shown=False
     
     def switch(self, pos):
         if self.shown:
-            self.hide(pos)
+            self.hide()
         else:
             self.show(pos)

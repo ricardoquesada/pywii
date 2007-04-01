@@ -19,7 +19,7 @@ from zza import xmenu
 
 WINDOW_SIZE=(800,600)
 
-
+BEGINLINE, ENDLINE = range(2)
 
 class View(Scene):
     
@@ -47,9 +47,9 @@ class View(Scene):
             self.group.add( self.addGoal(1,30, 3.0) )
 
         def F(ev):
-            print ev
+            pass #print ev
         self.menu = xmenu(self, self.root_node, 
-            {"hola":self.addBallEv, "que":F, "tal":F, "alecu":F, 
+            {"hola":self.addBallEv, "line":self.selLine, "que":F, "tal":F, "alecu":F, 
              "como":F, "esta":F, "phil?":F})    
         porcion = qgl.scene.Group()
         v = [ (0,0), (0,10), (10,10) ]
@@ -64,6 +64,28 @@ class View(Scene):
         v = [ (15,15), (10,0), (0,10) ]
         self.group.add( ballTexture, leafs.Triangle(v) )
         self.accept()
+        self.lineStat = BEGINLINE
+
+    def selLine(self, ev):
+        if self.lineStat == BEGINLINE:
+            self.beginLine(ev)
+        elif self.lineStat==ENDLINE:
+            self.endLine(ev)
+
+    def beginLine(self, ev):
+        self.lineFrom = ev.pos
+        self.lineStat = ENDLINE
+        print 'begin line from:',ev.pos
+        
+    def endLine(self, ev):
+        self.lineStat = BEGINLINE
+        print 'end line:',self.lineFrom, 'to:',ev.pos
+        x1,y1 = self.lineFrom
+        x2,y2 = ev.pos
+        self.addLineEv(x1,y1,x2,y2)
+        
+    def addLineEv(self, x1,y1,x2,y2):
+        self.addSegment(x1,y1,x2,y2) 
 
     def addBallEv(self, ev):
         ng = self.addBall(1, 10)
@@ -73,9 +95,7 @@ class View(Scene):
     def update(self, dt):
         self.world.loop(dt/1000.0)
 
-
     def update_event(self, event):
-
         if event.type == KEYDOWN and event.key == K_ESCAPE:
             self.game.change_scene(MainMenu(self.game))
         elif event.type is MOUSEMOTION:
@@ -84,9 +104,10 @@ class View(Scene):
             self.menu.moves(self.picker.hits)
                                 
         elif event.type is MOUSEBUTTONDOWN:
-            if event.button==1:
+            #if event.button==1:
+            if not self.menu.shown:
                 self.menu.switch(event.pos)
-                
+                return    
             #tell the picker we are interested in the area clicked by the mouse
             self.picker.set_position(event.pos)
             #ask the root node to accept the picker.
