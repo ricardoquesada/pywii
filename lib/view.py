@@ -80,7 +80,7 @@ class View(Scene):
             self.menu.moves(self.picker.hits)
                                 
         elif event.type is MOUSEBUTTONDOWN:
-            if event.button==2:
+            if event.button==1:
                 self.menu.switch(event.pos)
                 return
             #tell the picker we are interested in the area clicked by the mouse
