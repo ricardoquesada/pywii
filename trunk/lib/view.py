@@ -57,11 +57,12 @@ class View(Scene):
         print s, t
         self.theMatrix = euclid.Matrix4.new_scale(*s).translate(*t)
 
-        def F(ev):
+        def F(ev, npos):
             pass #print ev
         self.menu = xmenu(self, self.root_node, 
             {"hola":self.addBallEv, "line":self.selLine, "que":F, "tal":F, "alecu":F, 
-             "como":F, "esta":F, "phil?":F})    
+             "como":F, "esta":F, "phil?":F})
+             
         porcion = qgl.scene.Group()
         v = [ (0,0), (0,10), (10,10) ]
         porcion.add( leafs.Triangle(v) )
