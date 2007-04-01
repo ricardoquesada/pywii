@@ -21,7 +21,12 @@ class xmenu:
     def select(self, group, ev):
         if group in self.groups:
             elemento = self.options[self.d[group]]
-            self.callbacks[elemento](ev)
+            
+            ax,ay,bx,by=self.viewport.screen_dimensions 
+            dx=(bx-ax)/2
+            dy=(by-ay)/2
+            npos = ev.pos[0]-dx,dy-ev.pos[1],0
+            self.callbacks[elemento](ev, npos)
             self.hide()
             
     def calc(self, pos):

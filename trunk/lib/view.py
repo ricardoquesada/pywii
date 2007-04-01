@@ -24,7 +24,7 @@ BEGINLINE, ENDLINE = range(2)
 class View(Scene):
     
     def __init__(self, game):
-        Scene.__init__(self, game, PERSPECTIVE)
+        Scene.__init__(self, game, ORTHOGONAL) #PERSPECTIVE)
         self.world = world.World()
 
         if 0:
@@ -45,6 +45,17 @@ class View(Scene):
             self.group.add( self.addSegment(4,4,6,3) )
 
             self.group.add( self.addGoal(1,30, 3.0) )
+            
+        self.SCALE =  (20,20,0)
+        self.TRANS = (0,-200,0)
+        
+        self.group.scale= self.SCALE
+        self.group.translate=self.TRANS
+        
+        s = 1.0/self.SCALE[0], 1.0/self.SCALE[1], self.SCALE[2]
+        t = -1*euclid.Point3(*self.TRANS)
+        print s, t
+        self.m = euclid.Matrix4.new_scale(*s).translate(*t)
 
         def F(ev):
             pass #print ev
@@ -66,28 +77,33 @@ class View(Scene):
         self.accept()
         self.lineStat = BEGINLINE
 
-    def selLine(self, ev):
+    def selLine(self, ev, npos):
         if self.lineStat == BEGINLINE:
-            self.beginLine(ev)
+            self.beginLine(ev,npos)
         elif self.lineStat==ENDLINE:
-            self.endLine(ev)
+            self.endLine(ev,npos)
 
-    def beginLine(self, ev):
-        self.lineFrom = ev.pos
+    def beginLine(self, ev, npos):
+        self.lineFrom = npos
         self.lineStat = ENDLINE
-        print 'begin line from:',ev.pos
+        print 'begin line from:',npos
         
-    def endLine(self, ev):
+    def endLine(self, ev, npos):
         self.lineStat = BEGINLINE
-        print 'end line:',self.lineFrom, 'to:',ev.pos
-        x1,y1 = self.lineFrom
-        x2,y2 = ev.pos
+        print 'end line:',self.lineFrom, 'to:',npos
+        x1,y1,_ = self.lineFrom
+        x2,y2,_ = npos
         self.addLineEv(x1,y1,x2,y2)
         
-    def addLineEv(self, x1,y1,x2,y2):
-        self.addSegment(x1,y1,x2,y2) 
-
-    def addBallEv(self, ev):
+    def addLineEv(self, x1p,y1p,x2p,y2p):
+        x1,y1,z1 = self.m * euclid.Point3(x1p,y1p,0)
+        x2,y2,z2 = self.m * euclid.Point3(x2p,y2p,0)
+        print x1,y1,x2,y2
+        ng = self.addSegment(x1,y1,x2,y2) 
+        ng.accept(self.compiler)
+        self.group.add( ng )
+                
+    def addBallEv(self, ev, npos):
         ng = self.addBall(1, 10)
         ng.accept(self.compiler)
         self.group.add( ng )
