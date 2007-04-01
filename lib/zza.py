@@ -6,9 +6,10 @@ import math
 import leafs
 
 class xmenu:
-    def __init__(self, scene, root_node, *options):
+    def __init__(self, scene, root_node, options):
         self.d={}
-        self.options = options
+        self.options = options.keys()
+        self.callbacks = options
         self.scene = scene 
         self.rn = root_node
         self.viewport = qgl.scene.OrthoViewport()
@@ -17,12 +18,11 @@ class xmenu:
         self.shown=False
         self.selected=[]
         
-    def get(self, group):
+    def select(self, group):
         if group in self.groups:
-            return self.options[self.d[group]]
-    def release(self, group):
-        pass #print self.options[self.d[group]]
-        
+            elemento = self.options[self.d[group]]
+            self.callbacks[elemento](elemento)
+            
     def calc(self):
         #def r1(coef, r, k):
         #    """returns 2 puntos"""
@@ -76,11 +76,6 @@ class xmenu:
         for oldg in oldselected:
             if oldg not in groups:
                 self.mouseOut(oldg)
-
-    def keydown(self, event):
-        pass
-    def keyup (self, event):
-        pass
     
     def show(self):
         self.calc()
