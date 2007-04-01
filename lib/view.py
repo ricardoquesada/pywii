@@ -15,6 +15,7 @@ from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from common import *
+from zza import xmenu
 
 WINDOW_SIZE=(800,600)
 
@@ -46,6 +47,7 @@ class View(Scene):
             self.group.add( self.addGoal(1,30, 3.0) )
 
 
+        self.menu = xmenu(qgl.scene, self.root_node, "hola", "que", "tal", "alecu", "como", "esta", "phil?")    
         porcion = qgl.scene.Group()
         v = [ (0,0), (0,10), (10,10) ]
         porcion.add( leafs.Triangle(v) )
@@ -66,8 +68,23 @@ class View(Scene):
 
 
     def update_event(self, event):
+
         if event.type == KEYDOWN and event.key == K_ESCAPE:
             self.game.change_scene(MainMenu(self.game))
+        elif event.type is MOUSEMOTION:
+            self.picker.set_position(event.pos)
+            self.root_node.accept(self.picker)
+            self.menu.moves(self.picker.hits)
+                                
+        elif event.type is MOUSEBUTTONDOWN:
+            #tell the picker we are interested in the area clicked by the mouse
+            self.picker.set_position(event.pos)
+            #ask the root node to accept the picker.
+            self.root_node.accept(self.picker)
+            #picker.hits will be a list of nodes which were rendered at the position.
+            #to visualise which node was clicked, lets adjust its angle by 10 degrees.
+            for hit in self.picker.hits:
+                print self.menu.get(hit)
 
     def render(self):
         for ball in self.world.balls:
