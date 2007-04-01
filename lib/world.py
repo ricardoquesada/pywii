@@ -10,7 +10,6 @@ class Ball:
         self.velocity = velocity
         
     def loop(self, delta):
-        self.velocity += gravity*delta
         start = self.position
         movement = self.velocity*delta
         
@@ -26,6 +25,8 @@ class Ball:
                 last = collision.who
                 movement = collision.movement_left
                 self.velocity = collision.reflect(self.velocity)
+        
+        self.velocity += gravity*delta
                 
     def __repr__(self):
         return "<ball: p=%s v=%s>"%(str(self.position), str(self.velocity))
@@ -38,6 +39,7 @@ class Collision:
         
 class FloorCollision(Collision):
     def __init__(self, who, where, position, movement):
+        print where, position, movement
         self.who = who
         self.where = where
         self.movement_left = self.reflect((position+movement)-where)
@@ -64,8 +66,7 @@ class Floor(Object):
                 position.y < self.height 
                 and (position+movement).y >= self.height
             ):
-            print "collide"
-            where = euclid.Vector2(self.height, position.y)
+            where = euclid.Vector2(position.x, self.height)
             return FloorCollision(self, where, position, movement)
             
 class World:
