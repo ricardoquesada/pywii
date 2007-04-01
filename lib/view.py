@@ -1,3 +1,4 @@
+import leafs
 import pygame
 import qgl
 import euclid
@@ -66,7 +67,7 @@ class View:
         segmentGroup.angle = math.degrees(math.atan2(dy, dx))
         segmentGroup.translate = ( x1 + dx/2, y1 + dy/2, 0.0 )
         segmentTexture = qgl.scene.state.Texture(data.filepath("piso.png"))
-        segmentQuad = qgl.scene.state.Quad((math.hypot(dx,dy),1))
+        segmentQuad = qgl.scene.state.Quad((math.hypot(dx,dy)+1,1))
         segmentGroup.add(segmentTexture)
         segmentGroup.add(segmentQuad)
         segment.group = segmentGroup
@@ -91,19 +92,21 @@ class View:
         flags =  OPENGL|DOUBLEBUF|HWSURFACE
         pygame.display.set_mode(WINDOW_SIZE, flags)
         
-
         self.init()
 
         self.world = world.World()
         for n in range(-25,25,2):
             self.gameGroup.add( self.addBall(n, 5) )
+        v = [ (10,10), (10,0), (0,10) ]
+        self.gameGroup.add( leafs.Triangle(v) )
             
         #self.gameGroup.add( self.addBall(1, 10) )
         #self.gameGroup.add( self.addBall(5, 10) )
 
         #self.gameGroup.add(self.addFloor(0))
         self.gameGroup.add( self.addSegment(0, 0, 2, 0) )
-        self.gameGroup.add( self.addSegment(30, 3, -30, 3) )
+        self.gameGroup.add( self.addSegment(0, 6, 6, 0) )
+        self.gameGroup.add( self.addSegment(30, 6, -30, 0) )
 
         self.compile()
         clock = pygame.time.Clock()
