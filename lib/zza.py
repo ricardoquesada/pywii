@@ -10,11 +10,12 @@ class xmenu:
         self.d={}
         self.options = options
         self.scene = scene 
-
-        viewport2 = scene.OrthoViewport()
-        viewport2.screen_dimensions = (0,0,800,600)
-        root_node.add(viewport2)
-        self.addTo(viewport2)
+        self.rn = root_node
+        self.viewport = qgl.scene.OrthoViewport()
+        self.viewport.screen_dimensions = (0,0,800,600)
+        root_node.add(self.viewport)
+        self.shown=False
+        self.selected=[]
         
     def get(self, group):
         if group in self.groups:
@@ -54,7 +55,6 @@ class xmenu:
             groups[k].add( leafs.PorcionMuzza(v) )
             groups[k].selectable = True
             self.d[groups[k]]=k
-            
         self.groups = groups
         
     def mouseIn(self, group):
@@ -82,11 +82,19 @@ class xmenu:
     def keyup (self, event):
         pass
     
-    def addTo(self, viewport):
-        self.selected=[]
+    def show(self):
         self.calc()
-        viewport.add( *self.groups )
+        print 'agregando...'
+        self.viewport.add( *self.groups )
+        self.viewport.accept(self.scene.compiler)
+        self.shown=True
         
-    def delFrom(self, viewport):
-        viewport.remove( *self.groups )    
+    def hide(self):
+        self.viewport.remove( *self.groups )    
+        self.shown=False
     
+    def switch(self):
+        if self.shown:
+            self.hide()
+        else:
+            self.show()
