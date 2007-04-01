@@ -129,10 +129,13 @@ class View:
             self.gameGroup.add( self.addGoal(1,30, 3.0) )
 
 
-        textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
-        ballTexture = qgl.scene.state.Texture(data.filepath(textureFile))
+        porcion = qgl.scene.Group()
+        v = [ (0,0), (0,10), (10,10) ]
+        porcion.add( leafs.Triangle(v) )
         v = [ (0,0), (10,10), (10,0), (15,15), (15,0) ]
-        self.gameGroup.add( ballTexture, leafs.PorcionMuzza(v) )
+        porcion.add( leafs.PorcionMuzza(v) )
+        porcion.translate = -5,0,10
+        self.gameGroup.add( porcion )
 
         self.compile()
         clock = pygame.time.Clock()
