@@ -63,6 +63,9 @@ class Segment(GameObject):
         return what.reflect( Vector2(-self.segment.v.y, self.segment.v.x).normalize())
             
             
+class Floor(Segment):
+    def __init__(self, x1, y1, x2, y2):
+        self.segment =Line2(Point2(x1, y1), Point2(x2, y2))
             
             
 class World:
