@@ -17,18 +17,21 @@ class xmenu:
         root_node.add(self.viewport)
         self.shown=False
         self.selected=[]
+        self.lastClick = None
         
     def select(self, group, ev):
         if group in self.groups:
             elemento = self.options[self.d[group]]
-            
-            ax,ay,bx,by=self.viewport.screen_dimensions 
-            dx=(bx-ax)/2
-            dy=(by-ay)/2
-            npos = ev.pos[0]-dx,dy-ev.pos[1],0
+            pos = self.prevClick #setup event where it was clicked when accessing menu
+            dx,dy=self.convertDiffToOGL()
+            npos = pos[0]-dx, dy-pos[1], 0
             self.callbacks[elemento](ev, npos)
             self.hide()
             
+    def convertDiffToOGL(self):
+        ax,ay,bx,by=self.viewport.screen_dimensions 
+        return (bx-ax)/2, (by-ay)/2
+        
     def calc(self, pos):
         #def r1(coef, r, k):
         #    """returns 2 puntos"""
@@ -50,9 +53,7 @@ class xmenu:
         coef2 = coef*0.95
         cc = coef*0.025
         bandRatio=7.0/8
-        ax,ay,bx,by=self.viewport.screen_dimensions 
-        dx=(bx-ax)/2
-        dy=(by-ay)/2
+        dx,dy=self.convertDiffToOGL()
         for k in range(count):
             g=qgl.scene.Group()
             v = [(0,0)]+ r2(coef*k+cc,coef2,r*bandRatio,k)+r2(coef*k+cc,coef2,r,k)
@@ -79,21 +80,23 @@ class xmenu:
             return False
                 
         elif event.type is MOUSEBUTTONDOWN:
+            ret = False
             if not self.shown:
                 self.switch(event.pos)
-                return True   
-                
-            picker.set_position(event.pos)
-            self.rootnode.accept(picker)
-            if picker.hits:
-                for hit in picker.hits:
-                    self.select(hit, event)
+                ret = True   
             else:
-                self.switch()
-        else:
-            return False
-        return True
-
+                picker.set_position(event.pos)
+                self.rootnode.accept(picker)
+                if picker.hits:
+                    for hit in picker.hits:
+                        self.select(hit, event)
+                else:
+                    self.switch()
+                ret=True
+            self.prevClick = event.pos
+            return ret
+        return False
+            
     def mouseIn(self, group):
         t = group.scale
         if t[0]<1.5:
