@@ -57,8 +57,11 @@ class View:
         ball.group = ballGroup
         return ballGroup
 
-    def addSegment(self, x1, y1, x2, y2):
-        segment = world.Segment(x1, y1, x2, y2)
+    def addFloor(self, *a, **kw):
+        return self.addSegment(*a, **kw)
+
+    def addSegment(self, x1, y1, x2, y2, **kw):
+        segment = world.Segment(x1, y1, x2, y2, **kw)
         self.world.add_passive( segment )
         segmentGroup = qgl.scene.Group()
         dy = y2-y1
@@ -71,6 +74,18 @@ class View:
         segmentGroup.add(segmentQuad)
         segment.group = segmentGroup
         return segmentGroup
+
+    def addGoal(self, x, y, r):
+        goal = world.Goal(x, y, r)
+        self.world.add_passive( goal )
+        goalGroup = qgl.scene.Group()
+        goalGroup.translate = (x, y, 0.0)
+        goalTexture = qgl.scene.state.Texture(data.filepath("bola2.png"))
+        goalQuad = qgl.scene.state.Quad((r*2,r*2))
+        goalGroup.add(goalTexture)
+        goalGroup.add(goalQuad)
+        goal.group = goalGroup
+        return goalGroup
 
     def handleEvents(self):
         for event in pygame.event.get():
@@ -94,16 +109,25 @@ class View:
         self.init()
 
         self.world = world.World()
-        for n in range(-25,25,2):
-            self.gameGroup.add( self.addBall(n, 5) )
-            
-        #self.gameGroup.add( self.addBall(1, 10) )
-        #self.gameGroup.add( self.addBall(5, 10) )
+        if 0:
+            for n in range(-25,25,2):
+                self.gameGroup.add( self.addBall(n, 5) )
+                
+            self.gameGroup.add( self.addSegment(0, 0, 2, 0, bounce=2) )
+            self.gameGroup.add( self.addSegment(0, 6, 6, 0) )
+            self.gameGroup.add( self.addSegment(30, 6, -30, 0) )
+            self.gameGroup.add( self.addGoal(1,30, 3.0) )
+        else:
+            self.gameGroup.add( self.addFloor(0,0,2,0) )
 
-        #self.gameGroup.add(self.addFloor(0))
-        self.gameGroup.add( self.addSegment(0, 0, 2, 0) )
-        self.gameGroup.add( self.addSegment(0, 6, 6, 0) )
-        self.gameGroup.add( self.addSegment(30, 6, -30, 0) )
+            self.gameGroup.add( self.addBall(1, 10) )
+            self.gameGroup.add( self.addSegment(0,3,2,3, bounce=2) )
+
+            self.gameGroup.add( self.addBall(5, 10) )
+            self.gameGroup.add( self.addSegment(4,4,6,3) )
+
+            self.gameGroup.add( self.addGoal(1,30, 3.0) )
+
 
         textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
         ballTexture = qgl.scene.state.Texture(data.filepath(textureFile))
@@ -116,6 +140,8 @@ class View:
             dt = clock.tick(30)/1000.0
             self.handleEvents()
             self.world.loop(dt)
+            for e in self.world.get_events():
+                print "evt:", e
             #for e in self.world.get_events(): print e
             #print self.world.balls[0]
             self.render()
