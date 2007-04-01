@@ -1,12 +1,13 @@
 import qgl
 from common import *
 
+
 class NotImplementedError(Exception):
     pass
 
 class Scene:
 
-    def __init__(self, game):
+    def __init__(self, game, type=ORTHOGONAL):
         self.game = game
         self.compiler = qgl.render.Compiler()
         self.renderer = qgl.render.Render()
@@ -15,13 +16,19 @@ class Scene:
         self.picker = qgl.render.Picker()
         self.group = qgl.scene.Group()
         
-        #self.viewport = qgl.scene.PerspectiveViewport()
-        #self.group.translate = ( 0.0, 0.0, -250 )
-        #light = qgl.scene.state.Light(position=(0,10,20))
-        #light.diffuse = ( 1.0, 1.0, 1.0, 0.0 )
+        if type == PERSPECTIVE:
+            self.viewport = qgl.scene.PerspectiveViewport()
+            self.group.translate = ( 0.0, 0.0, -250 )
+            self.viewport.screen_dimensions = (0,0) + WINDOW_SIZE
+            self.group.translate = ( 0.0, -15.0, -50 )
 
-        self.viewport = qgl.scene.OrthoViewport()
-        self.viewport.screen_dimensions = (0,0) + WINDOW_SIZE
+            light = qgl.scene.state.Light(position=(0,10,20))
+            light.diffuse = ( 1.0, 1.0, 1.0, 0.0 )
+            self.group.add(light)
+        else:
+            self.viewport = qgl.scene.OrthoViewport()
+            self.viewport.screen_dimensions = (0,0) + WINDOW_SIZE
+        
        
         self.root_node.add(self.viewport)
         self.viewport.add(self.group)
@@ -30,7 +37,7 @@ class Scene:
     def render(self):
         self.root_node.accept(self.renderer)
 
-    def update(self):
+    def update(self, dt):
         raise NotImplementedError("You must overwrite this method.")
 
     def update_event(self, event):

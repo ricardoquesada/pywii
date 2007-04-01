@@ -9,5 +9,10 @@ except:
     # probably running inside py2exe which doesn't set __file__
     pass
 
-import view
-view.main()
+from game import Game
+from view import View
+
+if __name__ == '__main__':
+    g = Game()
+    g.change_scene(View(g))
+    g.main_loop()

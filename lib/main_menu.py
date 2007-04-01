@@ -4,11 +4,10 @@ from pygame.locals import *
 
 from menu import Menu
 from scene import Scene
-from options import Options
 
 class MainMenu(Scene):
     
-    def __init__(self, world):
+    def __init__(self, world, initial_option=0):
         Scene.__init__(self, world)
 
         items = [
@@ -18,12 +17,11 @@ class MainMenu(Scene):
                  ("Quit", self.on_quit),
                  ]
 
-        self.menu = Menu(self, items)
+        self.menu = Menu(self, items, initial_option)
 
 
-    def update(self):
+    def update(self, dt):
         self.menu.update()
-
 
     def update_event(self, event):
         self.menu.update_event(event)
@@ -32,7 +30,8 @@ class MainMenu(Scene):
     # Handlers 
 
     def on_new_game(self):
-        print "Ha seleccionado 'new game'"
+        from view import View
+        self.game.change_scene(View(self.game))
 
     def on_credits(self):
         print "Ha seleccionado 'credits'"
@@ -41,4 +40,5 @@ class MainMenu(Scene):
         self.game.quit = True
 
     def on_options(self):
-        self.game.change_scene(Options(self.game))
+        from options import Options
+        self.game.change_scene(Options(self.game, self.menu.index))

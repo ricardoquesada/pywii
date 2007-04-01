@@ -6,12 +6,12 @@ import menu_item
 
 class Menu:
     
-    def __init__(self, scene, items):
+    def __init__(self, scene, items, initial_option=0):
         
         self.items = items
-        self.index = 0
+        self.index = initial_option
         self._create_items_text(scene, items)
-        self.instances[0].enter()
+        self.instances[self.index].enter()
 
     def update(self):
         for x in self.instances:
@@ -75,4 +75,3 @@ if __name__ == '__main__':
     
     m = Menu([('uno', None), ('dos', None)])
     m.move_up()
-    print m.index
