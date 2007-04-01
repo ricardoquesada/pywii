@@ -84,7 +84,6 @@ class xmenu:
     
     def show(self):
         self.calc()
-        print 'agregando...'
         self.viewport.add( *self.groups )
         self.viewport.accept(self.scene.compiler)
         self.shown=True
