@@ -95,14 +95,14 @@ class View:
         self.init()
 
         self.world = world.World()
-        #for n in range(-25,25,2):
-        #    self.gameGroup.add( self.addBall(n, 5) )
-        self.gameGroup.add( self.addBall(1, 10) )
-        self.gameGroup.add( self.addBall(5, 10) )
+        for n in range(-25,25,2):
+            self.gameGroup.add( self.addBall(n, 5) )
+        #self.gameGroup.add( self.addBall(1, 10) )
+        #self.gameGroup.add( self.addBall(5, 10) )
 
         #self.gameGroup.add(self.addFloor(0))
         self.gameGroup.add( self.addSegment(0, 0, 2, 0) )
-        self.gameGroup.add( self.addSegment(0, 6, 6, 0) )
+        self.gameGroup.add( self.addSegment(30, 3, -30, 3) )
 
         self.compile()
         while 1:
