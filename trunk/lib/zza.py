@@ -23,7 +23,7 @@ class xmenu:
             elemento = self.options[self.d[group]]
             self.callbacks[elemento](elemento)
             
-    def calc(self):
+    def calc(self, pos):
         #def r1(coef, r, k):
         #    """returns 2 puntos"""
         #    return [(r*math.sin(coef*k), r*math.cos(coef*k)),
@@ -44,17 +44,22 @@ class xmenu:
         coef2 = coef*0.95
         cc = coef*0.025
         bandRatio=7.0/8
+        ax,ay,bx,by=self.viewport.screen_dimensions 
+        dx=(bx-ax)/2
+        dy=(by-ay)/2
         for k in range(count):
-            groups.append(qgl.scene.Group())
+            g=qgl.scene.Group()
             v = [(0,0)]+ r2(coef*k+cc,coef2,r*bandRatio,k)+r2(coef*k+cc,coef2,r,k)
             ##groups[k].add(texture, sphere)
             ##groups[k].translate = (r*math.sin(c), r*math.cos(c), 0) 
             ##groups[k].scale = (1, 1, 1)
             #v = [(0,0)]+ r1(coef,r*bandRatio,k)+r1(coef,r,k)
             #groups[k].add( texture, leafs.Triangle(v) )
-            groups[k].add( leafs.PorcionMuzza(v) )
-            groups[k].selectable = True
-            self.d[groups[k]]=k
+            g.add( leafs.PorcionMuzza(v) )
+            g.selectable = True
+            g.translate= pos[0]-dx,dy-pos[1],0
+            self.d[g]=k
+            groups.append(g)
         self.groups = groups
         
     def mouseIn(self, group):
@@ -77,18 +82,18 @@ class xmenu:
             if oldg not in groups:
                 self.mouseOut(oldg)
     
-    def show(self):
-        self.calc()
+    def show(self, pos):
+        self.calc(pos)
         self.viewport.add( *self.groups )
         self.viewport.accept(self.scene.compiler)
         self.shown=True
         
-    def hide(self):
+    def hide(self, pos):
         self.viewport.remove( *self.groups )    
         self.shown=False
     
-    def switch(self):
+    def switch(self, pos):
         if self.shown:
-            self.hide()
+            self.hide(pos)
         else:
-            self.show()
+            self.show(pos)
