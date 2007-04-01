@@ -108,9 +108,15 @@ class View(Scene):
         self.group.add( ng )
         
     def update(self, dt):
+        import sound
         self.world.loop(dt/1000.0)
         for evt in self.world.get_events():
-            print evt
+            print evt.ball.velocity.magnitude(), evt
+            n = evt.ball.velocity.magnitude()/50
+            if (n>1.0):
+                n = 1.0
+            vol = 1.0
+            sound.playSound(n, vol)
 
         self._update_camera(pygame.mouse.get_pos())
 
