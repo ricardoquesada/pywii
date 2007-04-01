@@ -20,8 +20,9 @@ class GameObject:
         return "<o @ %s>"%(str(self.segment))
         
 class Ball(GameObject):
-    def __init__(self, position, velocity=Vector2(0,0)):
+    def __init__(self, position, velocity=None):
         self.position = position
+        if velocity is None: velocity=Vector2(0,0)
         self.velocity = velocity
         
     def loop(self, delta):
@@ -43,11 +44,11 @@ class Ball(GameObject):
                 self.velocity = collision.other.reflect( self.velocity )
                 start = collision.where
                 last = collision.other
-        
+
         self.velocity += gravity*delta
                 
     def __repr__(self):
-        return "<ball: p=%s>"%(str(self.position))
+        return "<ball: p=%s v=%s>"%(str(self.position), self.velocity)
           
 class Segment(GameObject):
     def __init__(self, x1, y1, x2, y2, bounce=1):
@@ -97,7 +98,7 @@ class Goal(GameObject):
             return c
 
     def reflect(self, what):
-        return Vector2(0,0)
+        return what
                     
 class World:
     def __init__(self):
