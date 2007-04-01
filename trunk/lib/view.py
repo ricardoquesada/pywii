@@ -114,26 +114,11 @@ class View(Scene):
             print evt.ball.velocity.magnitude()
 
     def update_event(self, event):
+        if self.menu.updateEvent(event):
+            #skip other handlers
+            return
         if event.type == KEYDOWN and event.key == K_ESCAPE:
             self.game.change_scene(MainMenu(self.game))
-        elif event.type is MOUSEMOTION:
-            self.picker.set_position(event.pos)
-            self.root_node.accept(self.picker)
-            self.menu.moves(self.picker.hits)
-                                
-        elif event.type is MOUSEBUTTONDOWN:
-            #if event.button==1:
-            if not self.menu.shown:
-                self.menu.switch(event.pos)
-                return    
-            #tell the picker we are interested in the area clicked by the mouse
-            self.picker.set_position(event.pos)
-            #ask the root node to accept the picker.
-            self.root_node.accept(self.picker)
-            #picker.hits will be a list of nodes which were rendered at the position.
-            #to visualise which node was clicked, lets adjust its angle by 10 degrees.
-            for hit in self.picker.hits:
-                self.menu.select(hit, event)
 
     def render(self):
         for ball in self.world.balls:
