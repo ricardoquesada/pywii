@@ -2,8 +2,8 @@ Your Game Title
 ===============
 
 Entry in PyWeek #4  <http://www.pyweek.org/4/>
-Team: YOUR TEAM NAME (leave the "Team: bit")
-Members: YOUR TEAM MEMBERS (leave the "Members: bit")
+Team: Pywiii
+Members: dave, hugo, lucio, leito, alecu
 
 
 DEPENDENCIES:
