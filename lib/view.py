@@ -107,12 +107,14 @@ class View(Scene):
         for evt in self.world.get_events():
             print evt.ball.velocity.magnitude()
 
-    def _update_camera(self, event):
+        self._update_camera(pygame.mouse.get_pos())
+
+    def _update_camera(self, pos):
         left, up = 0, 0
         right, down = WINDOW_SIZE
-        velocity = 100.0
-        delta = 150
-        x, y = event.pos
+        velocity = 200.0
+        delta = 200
+        x, y = pos
         initial_x, initial_y = x, y
         x = max(x, 1)
         y = max(y, 1)
@@ -136,8 +138,20 @@ class View(Scene):
 
 
     def _move_camera(self, dx, dy):
-        self.camera_x += dx
-        self.camera_y += dy
+        max_delta = 10
+        self.camera_x += dx / 5
+        self.camera_y += dy / 5
+        bound_up, bound_down, bound_left, bound_right = CAMERA_AREA
+
+        if self.camera_x > bound_left:
+            self.camera_x = bound_left
+        elif self.camera_x < bound_right:
+            self.camera_x = bound_right
+    
+        if self.camera_y < bound_up:
+            self.camera_y = bound_up
+        elif self.camera_y > bound_down:
+            self.camera_y = bound_down
 
         self.SCALE =  (20,20,0)
         self.TRANS = (self.camera_x, self.camera_y,0)
@@ -155,10 +169,9 @@ class View(Scene):
         if event.type == KEYDOWN and event.key == K_ESCAPE:
             self.game.change_scene(MainMenu(self.game))
         elif event.type is MOUSEMOTION:
-            if self._update_camera(event):
-                self.picker.set_position(event.pos)
-                self.root_node.accept(self.picker)
-                self.menu.moves(self.picker.hits)
+            self.picker.set_position(event.pos)
+            self.root_node.accept(self.picker)
+            self.menu.moves(self.picker.hits)
                                 
         elif event.type is MOUSEBUTTONDOWN:
             #if event.button==1:
