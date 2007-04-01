@@ -4,6 +4,7 @@ import euclid
 import world
 import data
 import random
+import math
 
 from pygame.locals import *
 from OpenGL.GL import *
@@ -56,17 +57,20 @@ class View:
         ball.group = ballGroup
         return ballGroup
 
-    def addFloor(self, y):
-        floor = world.Floor(y)
-        self.world.add_passive( floor )
-        floorGroup = qgl.scene.Group()
-        floorGroup.translate = ( 0, y, 0 )
-        floorTexture = qgl.scene.state.Texture(data.filepath("piso.png"))
-        floorQuad = qgl.scene.state.Quad((200,1))
-        floorGroup.add(floorTexture)
-        floorGroup.add(floorQuad)
-        floor.group = floorGroup
-        return floorGroup
+    def addSegment(self, x1, y1, x2, y2):
+        segment = world.Segment(x1, y1, x2, y2)
+        self.world.add_passive( segment )
+        segmentGroup = qgl.scene.Group()
+        dy = y2-y1
+        dx = x2-x1
+        segmentGroup.angle = math.degrees(math.atan2(dy, dx))
+        segmentGroup.translate = ( x1 + dx/2, y1 + dy/2, 0.0 )
+        segmentTexture = qgl.scene.state.Texture(data.filepath("piso.png"))
+        segmentQuad = qgl.scene.state.Quad((math.hypot(dx,dy),1))
+        segmentGroup.add(segmentTexture)
+        segmentGroup.add(segmentQuad)
+        segment.group = segmentGroup
+        return segmentGroup
 
     def handleEvents(self):
         for event in pygame.event.get():
@@ -91,9 +95,14 @@ class View:
         self.init()
 
         self.world = world.World()
-        for n in range(-25,25,2):
-            self.gameGroup.add(self.addBall(n, 5))
-        self.gameGroup.add(self.addFloor(0))
+        #for n in range(-25,25,2):
+        #    self.gameGroup.add( self.addBall(n, 5) )
+        self.gameGroup.add( self.addBall(1, 10) )
+        self.gameGroup.add( self.addBall(5, 10) )
+
+        #self.gameGroup.add(self.addFloor(0))
+        self.gameGroup.add( self.addSegment(0, 0, 2, 0) )
+        self.gameGroup.add( self.addSegment(0, 6, 6, 0) )
 
         self.compile()
         while 1:
@@ -101,7 +110,6 @@ class View:
             self.handleEvents()
             self.world.loop(dt)
             self.render()
-            #floorGroup.translate = ( 0, y, 0 )
             #self.ballGroup.angle += 2
             pygame.display.flip()
 
