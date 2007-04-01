@@ -17,7 +17,6 @@ from OpenGL.GLU import *
 from common import *
 from zza import xmenu
 
-WINDOW_SIZE=(800,600)
 
 BEGINLINE, ENDLINE = range(2)
 
@@ -45,17 +44,11 @@ class View(Scene):
             self.group.add( self.addSegment(4,4,6,3) )
 
             self.group.add( self.addGoal(1,30, 3.0) )
+
+        self.camera_x = 0
+        self.camera_y = -200
+        self._move_camera(self.camera_x, self.camera_y)
             
-        self.SCALE =  (20,20,0)
-        self.TRANS = (0,-200,0)
-        
-        self.group.scale= self.SCALE
-        self.group.translate=self.TRANS
-        
-        s = 1.0/self.SCALE[0], 1.0/self.SCALE[1], self.SCALE[2]
-        t = -1*euclid.Point3(*self.TRANS)
-        print s, t
-        self.theMatrix = euclid.Matrix4.new_scale(*s).translate(*t)
 
         def F(ev, npos):
             pass #print ev
@@ -114,12 +107,72 @@ class View(Scene):
         for evt in self.world.get_events():
             print evt.ball.velocity.magnitude()
 
+    def _update_camera(self, event):
+        left, up = 0, 0
+        right, down = WINDOW_SIZE
+        velocity = 100.0
+        delta = 150
+        x, y = event.pos
+        initial_x, initial_y = x, y
+        x = max(x, 1)
+        y = max(y, 1)
+
+        if x < delta:
+            x += velocity / (left - x)
+        elif x > right - delta:
+            x += velocity / (right - x)
+
+        if y < delta:
+            y -= velocity / (up - y)
+        elif y > down - delta:
+            y -= velocity / (down - y)
+
+        if x != initial_x or y != initial_y:
+            self._move_camera(initial_x - x, initial_y - y)
+            return False
+        else:
+            # Permite que el metodo superior acceda a este evento
+            return True
+
+
+    def _move_camera(self, dx, dy):
+        self.camera_x += dx
+        self.camera_y += dy
+
+        self.SCALE =  (20,20,0)
+        self.TRANS = (self.camera_x, self.camera_y,0)
+        self.group.scale= self.SCALE
+        self.group.translate=self.TRANS
+        s = 1.0/self.SCALE[0], 1.0/self.SCALE[1], self.SCALE[2]
+        t = -1*euclid.Point3(*self.TRANS)
+        self.theMatrix = euclid.Matrix4.new_scale(*s).translate(*t)
+
+
     def update_event(self, event):
         if self.menu.updateEvent(event):
             #skip other handlers
             return
         if event.type == KEYDOWN and event.key == K_ESCAPE:
             self.game.change_scene(MainMenu(self.game))
+        elif event.type is MOUSEMOTION:
+            if self._update_camera(event):
+                self.picker.set_position(event.pos)
+                self.root_node.accept(self.picker)
+                self.menu.moves(self.picker.hits)
+                                
+        elif event.type is MOUSEBUTTONDOWN:
+            #if event.button==1:
+            if not self.menu.shown:
+                self.menu.switch(event.pos)
+                return    
+            #tell the picker we are interested in the area clicked by the mouse
+            self.picker.set_position(event.pos)
+            #ask the root node to accept the picker.
+            self.root_node.accept(self.picker)
+            #picker.hits will be a list of nodes which were rendered at the position.
+            #to visualise which node was clicked, lets adjust its angle by 10 degrees.
+            for hit in self.picker.hits:
+                self.menu.select(hit, event)
 
     def render(self):
         for ball in self.world.balls:
