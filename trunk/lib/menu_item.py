@@ -1,11 +1,12 @@
 import qgl
+import leafs
 from data import filepath
 
 class MenuItem:
     
     def __init__(self, caption, callback, x, y):
         font = filepath('menu.ttf')
-        figure = qgl.scene.state.Text(caption, font, size=1000)
+        figure = leafs.TextoAlineado(caption, font, size=1000, alignx=0.5, aligny=0.5)
         self.group = qgl.scene.Group()
         self.group.add(figure)
         self.group.translate = (x, y, 0.0)
