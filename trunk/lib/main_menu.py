@@ -1,8 +1,10 @@
+import qgl
 import pygame
 from pygame.locals import *
+
 from menu import Menu
 from scene import Scene
-import qgl
+from options import Options
 
 class MainMenu(Scene):
     
@@ -11,6 +13,7 @@ class MainMenu(Scene):
 
         items = [
                  ("Start new game", self.on_new_game),
+                 ("Option", self.on_options),
                  ("Credits", self.on_credits),
                  ("Quit", self.on_quit),
                  ]
@@ -35,4 +38,7 @@ class MainMenu(Scene):
         print "Ha seleccionado 'credits'"
 
     def on_quit(self):
-        print "Ha seleccionado 'quit'"
+        self.game.quit = True
+
+    def on_options(self):
+        self.game.change_scene(Options(self.game))

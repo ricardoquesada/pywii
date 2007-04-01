@@ -11,6 +11,7 @@ class Menu:
         self.items = items
         self.index = 0
         self._create_items_text(scene, items)
+        self.instances[0].enter()
 
     def update(self):
         for x in self.instances:
@@ -27,6 +28,8 @@ class Menu:
                 self.move_down()
             elif event.key == K_UP:
                 self.move_up()
+            elif event.key in [K_RETURN, K_SPACE]:
+                self.select()
 
     def on_mouse_motion(self, event):
         pass
@@ -53,13 +56,15 @@ class Menu:
 
         self.instances[self.index].enter()
 
+    def select(self):
+        self.instances[self.index].on_select()
 
     def _create_items_text(self, scene, items):
         
         dy = 0
         self.instances = []
-        for (i, _) in items:
-            new = menu_item.MenuItem(i, 0.0, -dy)
+        for (text, callback) in items:
+            new = menu_item.MenuItem(text, callback, 0.0, -dy)
             scene.add_group(new.group)
             dy += 60
             self.instances.append(new)

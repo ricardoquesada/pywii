@@ -35,6 +35,9 @@ class Game:
             elif e.type == KEYDOWN and e.key == K_q:
                 self.quit = True
             elif e.type == KEYDOWN and e.key == K_f:
-                pygame.display.toggle_fullscreen()
+                self.fullscreen()
             else:
                 self.scene.update_event(e)
+
+    def fullscreen(self):
+        pygame.display.toggle_fullscreen()
