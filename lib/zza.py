@@ -11,7 +11,7 @@ class xmenu:
         self.options = options.keys()
         self.callbacks = options
         self.scene = scene 
-        self.rn = root_node
+        self.rootnode = root_node
         self.viewport = qgl.scene.OrthoViewport()
         self.viewport.screen_dimensions = (0,0,800,600)
         root_node.add(self.viewport)
@@ -67,7 +67,33 @@ class xmenu:
             self.d[g]=k
             groups.append(g)
         self.groups = groups
-        
+
+    def updateEvent(self, event):
+        picker = self.scene.picker
+        if event.type is MOUSEMOTION:
+            picker.set_position(event.pos)
+            self.rootnode.accept (picker)
+            if picker.hits:
+                self.moves(picker.hits)
+                return True
+            return False
+                
+        elif event.type is MOUSEBUTTONDOWN:
+            if not self.shown:
+                self.switch(event.pos)
+                return True   
+                
+            picker.set_position(event.pos)
+            self.rootnode.accept(picker)
+            if picker.hits:
+                for hit in picker.hits:
+                    self.select(hit, event)
+            else:
+                self.switch()
+        else:
+            return False
+        return True
+
     def mouseIn(self, group):
         t = group.scale
         if t[0]<1.5:
@@ -97,9 +123,12 @@ class xmenu:
     def hide(self):
         self.viewport.remove( *self.groups )    
         self.shown=False
-    
-    def switch(self, pos):
+        
+    def switch(self, pos=None):
         if self.shown:
             self.hide()
         else:
+            if pos is None:
+                raise ValueError('Invalid position')
             self.show(pos)
+                
