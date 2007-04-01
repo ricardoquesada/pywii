@@ -2,22 +2,51 @@ from euclid import *
 import time
 
 gravity = Vector2(0,-9.81/10) # m/s**2
-
+max_speed = 200
             
-class Collision:
+def cap(vec, what):
+        if vec.magnitude() > what:
+            vec.normalize()
+            return vec * what
+        return vec
+
+class Event: pass
+
+class Collision(Event):
     def __init__(self, ball, other, where):
         self.ball = ball
         self.other = other
         self.where = where
+        
+    def apply(self):
+        self.ball.apply_collision(self.other)
+        self.other.apply_collision(self.ball)
+            
     def __repr__(self):
         return "<coll of %s with %s>"%(self.ball, self.other)
+
+class BallGone(Event):
+    def __init__(self, ball):
+        self.ball = ball
     
+    def __repr__(self):
+        return "<ball_gone %s>"%self.ball        
+
+class NewBall(Event):    
+    def __init__(self, ball):
+        self.ball = ball
+
+    def __repr__(self):
+        return "<new_ball %s>"%self.ball
 class GameObject:
     def set_world(self, world):
         self.world = world
       
     def __repr__(self):
         return "<o @ %s>"%(str(self.segment))
+        
+    def apply_collision(self, other):
+        pass
         
 class Ball(GameObject):
     def __init__(self, position, velocity=None):
@@ -42,16 +71,36 @@ class Ball(GameObject):
                                 (start+movement)-collision.where
                          )
                 self.velocity = collision.other.reflect( self.velocity )
+                self.velocity = cap(self.velocity, max_speed)
+
+                self.position = collision.where
                 start = collision.where
                 last = collision.other
+                
+                collision.apply()
 
         self.velocity += gravity*delta
+        self.velocity = cap(self.velocity, max_speed)
+        
                 
     def __repr__(self):
         return "<ball: p=%s v=%s>"%(str(self.position), self.velocity)
           
+class Attractor(GameObject):
+    def __init__(self, x, y, force):
+        self.position = Point2(x,y)
+        self.force = force
+        
+    def attract(self, other):
+        force = self.force/(self.position.distance(other.position)**2)
+        vec = self.position-other.position
+        vec.normalize()
+        vec *= force
+        other.velocity += vec
+        other.velocity = cap(other.velocity, max_speed)
+        
 class Segment(GameObject):
-    def __init__(self, x1, y1, x2, y2, bounce=1):
+    def __init__(self, x1, y1, x2, y2, bounce=1.1):
         self.segment =LineSegment2(Point2(x1, y1), Point2(x2, y2))
         self.bounce = bounce
         
@@ -79,6 +128,9 @@ class Floor(Segment):
     def reflect(self, what):
         return Vector2(0,0)
 
+    def apply_collision(self, ball):
+        self.world.remove_ball(ball)
+
 class Goal(GameObject):
     def __init__(self, x, y,radius):
         self.segment =Circle(Point2(x, y), radius)
@@ -99,12 +151,18 @@ class Goal(GameObject):
 
     def reflect(self, what):
         return what
+        
+    def apply_collision(self, ball):
+        self.world.remove_ball(ball)
                     
 class World:
     def __init__(self):
         self.balls = []
+        self.balls_to_remove = []
+        
         self.active = []
         self.passive = []
+        self.attractors = []
         
         self.events = []
         
@@ -119,14 +177,28 @@ class World:
         ball.set_world(self)
         self.balls.append( ball )
 
+    def remove_ball(self, ball):
+        self.balls_to_remove.append(ball)
+        self.add_event( BallGone( ball ) )
+        
     def add_passive(self, what):
         what.set_world( self )
         self.passive.append( what )
         
+    def add_attractor(self, what):
+        what.set_world( self )
+        self.attractors.append( what )
         
     def loop(self, delta):
-        for o in self.balls: o.loop(delta)
+        for o in self.balls: 
+            o.loop(delta)
+            for a in self.attractors:
+                a.attract( o )
         for o in self.active: o.loop(delta)
+        
+        for g in self.balls_to_remove:
+            if g in self.balls: self.balls.remove(g)
+        self.balls_to_remove = []
         
     def collide(self, who, movement, last=None):
         colls = []

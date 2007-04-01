@@ -26,14 +26,19 @@ class View(Scene):
         Scene.__init__(self, game, ORTHOGONAL) #PERSPECTIVE)
         self.world = world.World()
 
-        if 0:
-            for n in range(-25,25,2):
-                self.group.add( self.addBall(n, 5) )
-                
-            self.group.add( self.addSegment(0, 0, 2, 0, bounce=2) )
-            self.group.add( self.addSegment(0, 6, 6, 0) )
-            self.group.add( self.addSegment(30, 6, -30, 0) )
-            self.group.add( self.addGoal(1,30, 3.0) )
+        if 1:
+            #for n in range(-25,25,2):
+            #    self.group.add( self.addBall(n, 5) )
+            self.group.add( self.addBall( 5,5 ) )    
+            
+            self.group.add( self.addSegment(0, 0, 10, 0) )
+            self.group.add( self.addSegment(10, 0, 10, 10) )
+            self.group.add( self.addSegment(0, 10, 0, 0) )
+            
+            self.group.add( self.addGoal( 13, 6, 2.) )
+            self.group.add( self.addGoal( -3, 6, 2.) )
+
+            self.world.add_attractor( world.Attractor( 11, 11, 0.5 ) )
         else:
             self.group.add( self.addFloor(0,0,2,0) )
 
@@ -105,7 +110,7 @@ class View(Scene):
     def update(self, dt):
         self.world.loop(dt/1000.0)
         for evt in self.world.get_events():
-            print evt.ball.velocity.magnitude()
+            print evt
 
         self._update_camera(pygame.mouse.get_pos())
 
