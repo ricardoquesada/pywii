@@ -30,7 +30,8 @@ class Ball(GameObject):
             collision = self.world.collide(self, movement, last)
 
             if not collision:
-                self.position = start + movement
+                q = (start + movement)
+                self.position = Point2( q.x, q.y )
             else:
                 movement = collision.other.reflect( 
                                 (start+movement)-collision.where
@@ -61,12 +62,17 @@ class Segment(GameObject):
             
     def reflect(self, what):
         return what.reflect( Vector2(-self.segment.v.y, self.segment.v.x).normalize())
+        
+    def __repr__(self):
+        return "<segment %s>"%(str(self.segment))
             
             
 class Floor(Segment):
     def __init__(self, x1, y1, x2, y2):
         self.segment =Line2(Point2(x1, y1), Point2(x2, y2))
             
+    def reflect(self, what):
+        return Vector2(0,0)
             
 class World:
     def __init__(self):
@@ -100,17 +106,30 @@ class World:
                     if c:
                         colls.append( c )
         if colls:
-            return colls[0]                
+            mindist = -1
+            for c in colls:
+                try:
+                    dist = who.position.distance(c.where)
+                except:
+                    return c
+                if mindist == -1 or mindist > dist:
+                    mindist = dist
+                    winner = c
+            return winner
         return None
         
     
 if __name__ == "__main__":
     w = World()
-    w.add_ball( ball = Ball(Vector2(1, 10) ) )
-    w.add_passive( Segment(0,0,2,0) )
+    
+    w.add_passive( Floor(0,0,2,0) )
 
-    w.add_ball( ball = Ball(Vector2(5, 10) ) )
-    w.add_passive( Segment(4,1,6,0) )
+    
+    w.add_ball( ball = Ball(Point2(1, 10) ) )
+    w.add_passive( Segment(0,3,2,3) )
+
+    w.add_ball( ball = Ball(Point2(5, 10) ) )
+    w.add_passive( Segment(4,4,6,3) )
 
     dt = 1
     print "Start..."
