@@ -18,10 +18,13 @@ class xmenu:
         self.shown=False
         self.selected=[]
         
-    def select(self, group):
+    def select(self, group, ev):
+        #print 1
         if group in self.groups:
+            #print 2
             elemento = self.options[self.d[group]]
-            self.callbacks[elemento](elemento)
+            print elemento
+            self.callbacks[elemento](ev)
             
     def calc(self, pos):
         #def r1(coef, r, k):

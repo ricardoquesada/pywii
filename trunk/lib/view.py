@@ -46,10 +46,10 @@ class View(Scene):
 
             self.group.add( self.addGoal(1,30, 3.0) )
 
-        def F(x):
-            print x
+        def F(ev):
+            print ev
         self.menu = xmenu(self, self.root_node, 
-            {"hola":F, "que":F, "tal":F, "alecu":F, 
+            {"hola":self.addBallEv, "que":F, "tal":F, "alecu":F, 
              "como":F, "esta":F, "phil?":F})    
         porcion = qgl.scene.Group()
         v = [ (0,0), (0,10), (10,10) ]
@@ -65,7 +65,11 @@ class View(Scene):
         self.group.add( ballTexture, leafs.Triangle(v) )
         self.accept()
 
-
+    def addBallEv(self, ev):
+        ng = self.addBall(1, 10)
+        ng.accept(self.compiler)
+        self.group.add( ng )
+        
     def update(self, dt):
         self.world.loop(dt/1000.0)
 
@@ -82,7 +86,7 @@ class View(Scene):
         elif event.type is MOUSEBUTTONDOWN:
             if event.button==1:
                 self.menu.switch(event.pos)
-                return
+                
             #tell the picker we are interested in the area clicked by the mouse
             self.picker.set_position(event.pos)
             #ask the root node to accept the picker.
@@ -90,7 +94,7 @@ class View(Scene):
             #picker.hits will be a list of nodes which were rendered at the position.
             #to visualise which node was clicked, lets adjust its angle by 10 degrees.
             for hit in self.picker.hits:
-                self.menu.select(hit)
+                self.menu.select(hit, event)
 
     def render(self):
         for ball in self.world.balls:
