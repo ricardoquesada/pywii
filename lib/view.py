@@ -1,14 +1,9 @@
-'''Game main module.
-
-Contains the entry point used by the run_game.py script.
-
-Feel free to put all your game code here, or in other modules in this "lib"
-directory.
-'''
-
-import data
-import qgl
 import pygame
+import qgl
+import euclid
+import world
+import data
+
 from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -17,60 +12,57 @@ WINDOW_SIZE=(800,600)
 
 class View:
     def init(self):
-        #Create the visitors.
-        #The compiler visitor is used to change a Node object into a set of OpenGL draw commands. More on nodes later.
         self.compiler = qgl.render.Compiler()
-        #The render visitor is used to execute compiled commands.
         self.renderer = qgl.render.Render()
-        #the picker visitor can check which attributes are clicked by a mouse
         self.picker = qgl.render.Picker()
-
-        #the root node is the root of the tree structure (also called a scene graph). Branches get added to the root. 
         self.root_node = qgl.scene.Root()
 
-        #every root node must have a viewport branch, which specifies which area of the screen to draw to.
-        #the PersepctiveViewport renders all its children in a 3d view.
-        #self.viewport = qgl.scene.PerspectiveViewport()
-        self.viewport = qgl.scene.OrthoViewport()
+        self.viewport = qgl.scene.PerspectiveViewport()
+        #self.viewport = qgl.scene.OrthoViewport()
         self.viewport.screen_dimensions = (0,0) + WINDOW_SIZE
 
-        #a group node can translate, rotate and scale its children. it can also contain leaves, which are drawable things.
         self.gameGroup = qgl.scene.Group()
-        #because this group will be displayed in 3d, using a PerspectiveViewport, it makes sense to move it into the screen
-        #using the group.translate attribute. Any objects drawn at a depth (z) of 0.0 in a perspective viewport will not be show.
-        #self.gameGroup.translate = ( 0.0, 0.0, -50 )
-
-        #the group node has attributes that can be changed to manipulate the position of its children.
+        self.gameGroup.translate = ( 0.0, -15.0, -50 )
         #self.gameGroup.axis = (0,1,0)
         #self.gameGroup.angle = 45
 
-        #a Light leaf will control the lighting of any leaves rendered after it.
         #light = qgl.scene.state.Light(position=(0,10,20))
-
-        #lets give the light a red hue
         #light.diffuse = ( 1.0, 1.0, 1.0, 0.0 )
 
-        #if the light leaf is added to the same group as the children it is going
-        #to light, it would move, and rotate with its children.
-        #this is not the effect we want in this case, so we add the light to its
-        #own group, which we will call environment.
         environment = qgl.scene.Group()
-
-        #Now we add the different nodes and leaves into a tree structure using the .add method. 
         self.root_node.add(self.viewport)
         self.viewport.add(environment)
         #environment.add(light)
         environment.add(self.gameGroup)
 
-        #leaves are added to the group. The texture leaf loads a texture image ready for drawing. Any quads leaves, which are drawn 
-        #after a texture leaf will be rendered with the texture image.
-        texture = qgl.scene.state.Texture(data.filepath("bola2.png"))
-        quad = qgl.scene.state.Quad((64,64))
-        #Now we add the different nodes and leaves into a tree structure using the .add method.
-        self.gameGroup.add(texture)
-        self.gameGroup.add(quad)
+        self.world = world.World()
+        self.gameGroup.add(self.addBall(1, 10))
+        self.gameGroup.add(self.addFloor(0))
 
         self.root_node.accept(self.compiler)
+
+    def addBall(self, x, y):
+        ball = world.Ball(euclid.Vector2(1, 10) )
+        self.world.add_ball(ball)
+        ballGroup = qgl.scene.Group()
+        ballTexture = qgl.scene.state.Texture(data.filepath("bola3.png"))
+        ballQuad = qgl.scene.state.Quad((3,3))
+        ballGroup.add(ballTexture)
+        ballGroup.add(ballQuad)
+        ball.group = ballGroup
+        return ballGroup
+
+    def addFloor(self, y):
+        floor = world.Floor(y)
+        self.world.add_passive( floor )
+        floorGroup = qgl.scene.Group()
+        floorGroup.translate = ( 0, y, 0 )
+        floorTexture = qgl.scene.state.Texture(data.filepath("piso.png"))
+        floorQuad = qgl.scene.state.Quad((200,1))
+        floorGroup.add(floorTexture)
+        floorGroup.add(floorQuad)
+        floor.group = floorGroup
+        return floorGroup
 
     def handleEvents(self):
         for event in pygame.event.get():
@@ -80,6 +72,10 @@ class View:
                 raise SystemExit
 
     def render(self):
+        for ball in self.world.balls:
+            position = ball.position
+            ball.group.translate = (position.x, position.y, 0)
+            pass
         self.root_node.accept(self.renderer)
 
     def test(self):
@@ -89,10 +85,12 @@ class View:
         clock = pygame.time.Clock()
         self.init()
         while 1:
-            clock.tick(30)
+            dt = clock.tick(30)/1000.0
             self.handleEvents()
+            self.world.loop(dt)
             self.render()
-            self.gameGroup.angle += 2
+            #floorGroup.translate = ( 0, y, 0 )
+            #self.ballGroup.angle += 2
             pygame.display.flip()
 
 def main():
