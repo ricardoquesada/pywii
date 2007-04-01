@@ -47,7 +47,6 @@ class View:
         ballGroup = qgl.scene.Group()
 
         textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
-
         ballTexture = qgl.scene.state.Texture(data.filepath(textureFile))
         #ballQuad = qgl.scene.state.Quad((3,3))
         SEGS=16
@@ -97,8 +96,6 @@ class View:
         self.world = world.World()
         for n in range(-25,25,2):
             self.gameGroup.add( self.addBall(n, 5) )
-        v = [ (10,10), (10,0), (0,10) ]
-        self.gameGroup.add( leafs.Triangle(v) )
             
         #self.gameGroup.add( self.addBall(1, 10) )
         #self.gameGroup.add( self.addBall(5, 10) )
@@ -107,6 +104,11 @@ class View:
         self.gameGroup.add( self.addSegment(0, 0, 2, 0) )
         self.gameGroup.add( self.addSegment(0, 6, 6, 0) )
         self.gameGroup.add( self.addSegment(30, 6, -30, 0) )
+
+        textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
+        ballTexture = qgl.scene.state.Texture(data.filepath(textureFile))
+        v = [ (15,15), (10,0), (0,10) ]
+        self.gameGroup.add( ballTexture, leafs.Triangle(v) )
 
         self.compile()
         clock = pygame.time.Clock()
