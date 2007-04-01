@@ -3,9 +3,31 @@ import time
 
 gravity = euclid.Vector2(0,-9.81/10) # m/s**2
 
-class Ball:
-    def __init__(self, world, position, velocity=euclid.Vector2(0,0)):
+            
+class Collision:
+    where = None
+    movement_left = None
+    def reflect(self, what):
+        raise NotImplementedError()
+        
+class FloorCollision(Collision):
+    def __init__(self, who, where, position, movement):
+        print where, position, movement
+        self.who = who
+        self.where = where
+        self.movement_left = self.reflect((position+movement)-where)
+        
+    def reflect(self, vector):
+        return euclid.Vector2(
+                vector.x, -vector.y
+            )
+    
+class GameObject:
+    def set_world(self, world):
         self.world = world
+      
+class Ball(GameObject):
+    def __init__(self, position, velocity=euclid.Vector2(0,0)):
         self.position = position
         self.velocity = velocity
         
@@ -30,30 +52,8 @@ class Ball:
                 
     def __repr__(self):
         return "<ball: p=%s v=%s>"%(str(self.position), str(self.velocity))
-            
-class Collision:
-    where = None
-    movement_left = None
-    def reflect(self, what):
-        raise NotImplementedError()
-        
-class FloorCollision(Collision):
-    def __init__(self, who, where, position, movement):
-        print where, position, movement
-        self.who = who
-        self.where = where
-        self.movement_left = self.reflect((position+movement)-where)
-        
-    def reflect(self, vector):
-        return euclid.Vector2(
-                vector.x, -vector.y
-            )
-    
-class Object:
-    def set_world(self, world):
-        self.world = world
-                
-class Floor(Object):
+          
+class Floor(GameObject):
     def __init__(self, height = 0):
         self.height = height
 
@@ -79,8 +79,8 @@ class World:
         
     def init(self): pass
     
-    def add_ball(self, x, y):
-        ball = Ball(self, euclid.Vector2(x, y) )
+    def add_ball(self,ball):
+        ball.set_world(self)
         self.balls.append( ball )
 
     def add_passive(self, what):
@@ -107,7 +107,7 @@ class World:
     
 if __name__ == "__main__":
     w = World()
-    w.add_ball( 1, 10 )
+    w.add_ball( ball = Ball(euclid.Vector2(1, 10) ) )
     w.add_passive( Floor(0) )
     dt = 1
     print "Start..."
