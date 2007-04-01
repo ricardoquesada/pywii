@@ -41,7 +41,7 @@ class View:
         self.root_node.accept(self.compiler)
 
     def addBall(self, x, y):
-        ball = world.Ball(euclid.Vector2(x, y) )
+        ball = world.Ball(euclid.Point2(x, y) )
         self.world.add_ball(ball)
         ballGroup = qgl.scene.Group()
 
@@ -90,13 +90,14 @@ class View:
         pygame.init()
         flags =  OPENGL|DOUBLEBUF|HWSURFACE
         pygame.display.set_mode(WINDOW_SIZE, flags)
-        clock = pygame.time.Clock()
+        
 
         self.init()
 
         self.world = world.World()
         for n in range(-25,25,2):
             self.gameGroup.add( self.addBall(n, 5) )
+            
         #self.gameGroup.add( self.addBall(1, 10) )
         #self.gameGroup.add( self.addBall(5, 10) )
 
@@ -105,10 +106,13 @@ class View:
         self.gameGroup.add( self.addSegment(30, 3, -30, 3) )
 
         self.compile()
+        clock = pygame.time.Clock()
         while 1:
             dt = clock.tick(30)/1000.0
             self.handleEvents()
             self.world.loop(dt)
+            #for e in self.world.get_events(): print e
+            #print self.world.balls[0]
             self.render()
             #self.ballGroup.angle += 2
             pygame.display.flip()
@@ -116,3 +120,4 @@ class View:
 def main():
     view=View()
     view.test()
+
