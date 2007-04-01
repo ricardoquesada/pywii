@@ -28,7 +28,7 @@ class Ball(GameObject):
     def loop(self, delta):
         start = self.position
         movement = self.velocity*delta
-        
+
         collision = True
         last = None
         while collision:
