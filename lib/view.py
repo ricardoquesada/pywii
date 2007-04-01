@@ -131,8 +131,8 @@ class View:
 
         textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
         ballTexture = qgl.scene.state.Texture(data.filepath(textureFile))
-        v = [ (15,15), (10,0), (0,10) ]
-        self.gameGroup.add( ballTexture, leafs.Triangle(v) )
+        v = [ (0,0), (10,10), (10,0), (15,15), (15,0) ]
+        self.gameGroup.add( ballTexture, leafs.PorcionMuzza(v) )
 
         self.compile()
         clock = pygame.time.Clock()
