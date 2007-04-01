@@ -47,7 +47,7 @@ class View(Scene):
             self.group.add( self.addGoal(1,30, 3.0) )
 
 
-        self.menu = xmenu(qgl.scene, self.root_node, "hola", "que", "tal", "alecu", "como", "esta", "phil?")    
+        self.menu = xmenu(self, self.root_node, "hola", "que", "tal", "alecu", "como", "esta", "phil?")    
         porcion = qgl.scene.Group()
         v = [ (0,0), (0,10), (10,10) ]
         porcion.add( leafs.Triangle(v) )
@@ -77,6 +77,8 @@ class View(Scene):
             self.menu.moves(self.picker.hits)
                                 
         elif event.type is MOUSEBUTTONDOWN:
+            if event.button==2:
+                self.menu.switch()
             #tell the picker we are interested in the area clicked by the mouse
             self.picker.set_position(event.pos)
             #ask the root node to accept the picker.
