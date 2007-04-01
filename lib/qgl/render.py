@@ -37,7 +37,10 @@ import pygame
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-import numpy
+try:
+    import numpy
+except:
+    import Numeric as numpy
 
 from qgl.scene import state
 import qgl.texture
