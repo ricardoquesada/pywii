@@ -20,7 +20,7 @@ class Scene:
             self.viewport = qgl.scene.PerspectiveViewport()
             self.group.translate = ( 0.0, 0.0, -250 )
             self.viewport.screen_dimensions = (0,0) + WINDOW_SIZE
-            self.group.translate = ( 0.0, -15.0, -50 )
+            #self.group.translate = ( 0.0, -15.0, -50 )
 
             light = qgl.scene.state.Light(position=(0,10,20))
             light.diffuse = ( 1.0, 1.0, 1.0, 0.0 )

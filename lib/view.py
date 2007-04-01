@@ -55,7 +55,7 @@ class View(Scene):
         s = 1.0/self.SCALE[0], 1.0/self.SCALE[1], self.SCALE[2]
         t = -1*euclid.Point3(*self.TRANS)
         print s, t
-        self.m = euclid.Matrix4.new_scale(*s).translate(*t)
+        self.theMatrix = euclid.Matrix4.new_scale(*s).translate(*t)
 
         def F(ev):
             pass #print ev
@@ -96,8 +96,8 @@ class View(Scene):
         self.addLineEv(x1,y1,x2,y2)
         
     def addLineEv(self, x1p,y1p,x2p,y2p):
-        x1,y1,z1 = self.m * euclid.Point3(x1p,y1p,0)
-        x2,y2,z2 = self.m * euclid.Point3(x2p,y2p,0)
+        x1,y1,z1 = self.theMatrix * euclid.Point3(x1p,y1p,0)
+        x2,y2,z2 = self.theMatrix * euclid.Point3(x2p,y2p,0)
         print x1,y1,x2,y2
         ng = self.addSegment(x1,y1,x2,y2) 
         ng.accept(self.compiler)
@@ -110,6 +110,8 @@ class View(Scene):
         
     def update(self, dt):
         self.world.loop(dt/1000.0)
+        for evt in self.world.get_events():
+            print evt.ball.velocity.magnitude()
 
     def update_event(self, event):
         if event.type == KEYDOWN and event.key == K_ESCAPE:
