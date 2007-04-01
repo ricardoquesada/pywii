@@ -3,6 +3,7 @@ import qgl
 import euclid
 import world
 import data
+import random
 
 from pygame.locals import *
 from OpenGL.GL import *
@@ -26,29 +27,32 @@ class View:
         #self.gameGroup.axis = (0,1,0)
         #self.gameGroup.angle = 45
 
-        #light = qgl.scene.state.Light(position=(0,10,20))
-        #light.diffuse = ( 1.0, 1.0, 1.0, 0.0 )
+        light = qgl.scene.state.Light(position=(0,10,20))
+        light.diffuse = ( 1.0, 1.0, 1.0, 0.0 )
 
         environment = qgl.scene.Group()
         self.root_node.add(self.viewport)
         self.viewport.add(environment)
-        #environment.add(light)
+        environment.add(light)
         environment.add(self.gameGroup)
 
-        self.world = world.World()
-        self.gameGroup.add(self.addBall(1, 10))
-        self.gameGroup.add(self.addFloor(0))
-
+    def compile(self):
         self.root_node.accept(self.compiler)
 
     def addBall(self, x, y):
-        ball = world.Ball(euclid.Vector2(1, 10) )
+        ball = world.Ball(euclid.Vector2(x, y) )
         self.world.add_ball(ball)
         ballGroup = qgl.scene.Group()
-        ballTexture = qgl.scene.state.Texture(data.filepath("bola3.png"))
-        ballQuad = qgl.scene.state.Quad((3,3))
+
+        textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
+
+        ballTexture = qgl.scene.state.Texture(data.filepath(textureFile))
+        #ballQuad = qgl.scene.state.Quad((3,3))
+        SEGS=16
+        ballQuad = qgl.scene.state.Sphere(1, x_segments=SEGS, y_segments=SEGS)
         ballGroup.add(ballTexture)
         ballGroup.add(ballQuad)
+        ballGroup.axis = (0,1,0)
         ball.group = ballGroup
         return ballGroup
 
@@ -75,7 +79,7 @@ class View:
         for ball in self.world.balls:
             position = ball.position
             ball.group.translate = (position.x, position.y, 0)
-            pass
+            ball.group.angle += 4
         self.root_node.accept(self.renderer)
 
     def test(self):
@@ -83,7 +87,15 @@ class View:
         flags =  OPENGL|DOUBLEBUF|HWSURFACE
         pygame.display.set_mode(WINDOW_SIZE, flags)
         clock = pygame.time.Clock()
+
         self.init()
+
+        self.world = world.World()
+        for n in range(-25,25,2):
+            self.gameGroup.add(self.addBall(n, 5))
+        self.gameGroup.add(self.addFloor(0))
+
+        self.compile()
         while 1:
             dt = clock.tick(30)/1000.0
             self.handleEvents()
@@ -94,6 +106,5 @@ class View:
             pygame.display.flip()
 
 def main():
-    bola= data.filepath('bola.png')
     view=View()
     view.test()
