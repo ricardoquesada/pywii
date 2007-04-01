@@ -81,7 +81,7 @@ class View(Scene):
                                 
         elif event.type is MOUSEBUTTONDOWN:
             if event.button==2:
-                self.menu.switch()
+                self.menu.switch(event.pos)
                 return
             #tell the picker we are interested in the area clicked by the mouse
             self.picker.set_position(event.pos)
