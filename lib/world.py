@@ -153,7 +153,7 @@ class LimitedLifeSegment(Segment):
 class Floor(Segment):
     def __init__(self, height):
         self.height = height
-        self.segment =Line2(Point2(0, height), Point2(10, htight))
+        self.segment =Line2(Point2(0, height), Point2(10, height))
             
     def reflect(self, what):
         return Vector2(0,0)
