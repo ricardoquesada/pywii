@@ -200,10 +200,10 @@ class Runner(engine.Scene):
     WON  = 3
     
     levels = [
-            LevelFour,
             LevelOne,
             LevelTwo,
             LevelThree,
+            LevelFour,
         ]
     def init(self):
         self.state = self.PRE_LEVEL
