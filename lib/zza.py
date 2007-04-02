@@ -1,32 +1,49 @@
 import pygame
 from pygame.locals import *
-
+import scene
 import qgl
 import math
 import leafs
 
-class xmenu:
-    def __init__(self, scene, root_node, options):
+class exitMenu:
+    pass
+
+class xmenu(scene.EventHandler):
+    def __init__(self, theScene, options):
+        scene.EventHandler.__init__(self)
         self.d={}
         self.options = options.keys()
         self.callbacks = options
-        self.scene = scene 
-        self.rootnode = root_node
+        self.scene = theScene 
         self.viewport = qgl.scene.OrthoViewport()
         self.viewport.screen_dimensions = (0,0,800,600)
-        root_node.add(self.viewport)
+        self.rootnode.add(self.viewport)
         self.shown=False
         self.selected=[]
-        self.lastClick = None
+        self.groups=[]
+        
+    @property
+    def rootnode(self):
+        return self.scene.root_node
         
     def select(self, group, ev):
         if group in self.groups:
             elemento = self.options[self.d[group]]
-            pos = self.prevClick #setup event where it was clicked when accessing menu
+            xev = self.lastClick
+            if xev is None:
+                return
+            pos = xev.pos
             dx,dy=self.convertDiffToOGL()
             npos = pos[0]-dx, dy-pos[1], 0
-            self.callbacks[elemento](ev, npos)
-            self.hide()
+            
+            handler = self.callbacks[elemento]
+            if handler is exitMenu:
+                print 'saliendo del menu'
+                self.pop_handler()
+                return
+                
+            print 'going to ',repr(handler)
+            self.push_handler(handler())            
             
     def convertDiffToOGL(self):
         ax,ay,bx,by=self.viewport.screen_dimensions 
@@ -57,9 +74,11 @@ class xmenu:
         for k in range(count):
             g=qgl.scene.Group()
             v = [(0,0)]+ r2(coef*k+cc,coef2,r*bandRatio,k)+r2(coef*k+cc,coef2,r,k)
+            # #draw a textured square..
             ##groups[k].add(texture, sphere)
             ##groups[k].translate = (r*math.sin(c), r*math.cos(c), 0) 
             ##groups[k].scale = (1, 1, 1)
+            # #draw a simple triangle with simplest shading
             #v = [(0,0)]+ r1(coef,r*bandRatio,k)+r1(coef,r,k)
             #groups[k].add( texture, leafs.Triangle(v) )
             g.add( leafs.PorcionMuzza(v) )
@@ -69,33 +88,35 @@ class xmenu:
             groups.append(g)
         self.groups = groups
 
-    def updateEvent(self, event):
+    def handle_event(self, event):
         picker = self.scene.picker
         if event.type is MOUSEMOTION:
             picker.set_position(event.pos)
             self.rootnode.accept (picker)
             if picker.hits:
                 self.moves(picker.hits)
-                return True
-            return False
                 
         elif event.type is MOUSEBUTTONDOWN:
-            ret = False
-            if not self.shown:
-                self.switch(event.pos)
-                ret = True   
+            picker.set_position(event.pos)
+            self.rootnode.accept(picker)
+            if picker.hits:
+                for hit in picker.hits:
+                    print 'clickeo',hit
+                    self.select(hit, event)
+                    break
             else:
-                picker.set_position(event.pos)
-                self.rootnode.accept(picker)
-                if picker.hits:
-                    for hit in picker.hits:
-                        self.select(hit, event)
-                else:
-                    self.switch()
-                ret=True
-            self.prevClick = event.pos
-            return ret
-        return False
+                print 'acaaaaaaaaa....'
+                self.pop_handler()
+                
+        elif event.type is USEREVENT:
+            if event.code is scene.EV_HANDLER_ACTIVE:
+                pos = self.lastClick.pos
+                print 'activating menu'
+                self.show(pos)
+            elif event.code is scene.EV_HANDLER_PASSIVE:
+                print 'going to hide!'
+                self.hide()
+
             
     def mouseIn(self, group):
         t = group.scale
