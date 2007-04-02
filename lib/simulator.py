@@ -7,13 +7,24 @@ def getpos(what):
     
 BAR_START = 0
 BAR_END = 1
-
+class LevelEnd:
+    def __init__(self, win, score):
+        self.win = win
+        self.score = score
+        
+        
 class Simulator(engine.Scene):
+    lives = 100
+    name = "Level One"
+    target = 20
+    
     def init(self, *args, **kwargs):
         self.world = World()
         self.view = engine.View(self.game, 0,0, 1)
         self.setup_level(*args, **kwargs)
         self.state = BAR_START
+        self.goal = 0
+        self.lost = 0
         self.stack = []
         
     def setup_level(self):
@@ -47,7 +58,14 @@ class Simulator(engine.Scene):
     def loop(self, dt):
         self.world.loop(dt/100.0)
         for evt in self.world.get_events():
-            pass
+            if isinstance(evt, BallAtGoal):
+                self.goal += 1
+            if isinstance(evt, BallLost):
+                self.lost += 1                
+        if self.lost > self.lives:
+            self.end( LevelEnd(False, 0) )
+        if self.goal > self.target:
+            self.end( LevelEnd(True, self.goal * 2 - self.lost) )
             
     def update(self):
         self.game.screen.blit( self.background, (0,0) ) 
@@ -81,11 +99,95 @@ class Simulator(engine.Scene):
                     self.stack[-1] ,
                     pygame.mouse.get_pos() ,
                     )
-                    
-            
+        self.log("goal:   "+str(self.goal))
+        self.log("lost:   "+str(self.lost))
+        self.log("alive:  "+str(len(self.world.balls)))
+        self.log("fps:    "+str( self.game.clock.get_fps() ))
+
+class LevelOne(Simulator):
+    lives = 100
+    name = "Level One"
+    target = 20
+    
+    def setup_level(self):
+        self.world.add_active( Generator((0,10)) )
+        self.world.add_passive( Segment(-10,20,10,20) )
+        self.world.add_passive( Goal(0,60,15.) )
+        self.world.add_passive( Floor(-200) )
+
+class LevelTwo(Simulator):
+    lives = 100
+    name = "Level Two"
+    target = 20
+    
+    def setup_level(self):
+        self.world.add_active( Generator((0,10)) )
+        self.world.add_passive( Segment(-100,20,100,20) )
+        self.world.add_passive( Goal(0,60,15.) )
+        self.world.add_passive( Floor(-200) )
+
+class Runner(engine.Scene):
+    log_font_size = 40
+    PRE_LEVEL = 0
+    POST_LEVEL = 1
+    LOST = 2
+    WON  = 3
+    
+    levels = [
+            LevelOne,
+            LevelTwo,
+        ]
+    def init(self):
+        self.state = self.PRE_LEVEL
+        self.current_level = 0
+        self.score = 0
+        
+    def event(self, evt):
+        if self.state == self.PRE_LEVEL:
+            if evt.type == KEYDOWN:
+                self.result = self.runScene( self.levels[self.current_level](self.game) )
+                if self.result.win:
+                    self.score += self.result.score
+                    self.current_level += 1
+                    if len(self.levels) <= self.current_level:
+                        self.state = self.WON
+                    else:
+                        self.state = self.POST_LEVEL
+                else:
+                    self.state = self.LOST
+                
+                
+        elif self.state == self.POST_LEVEL:
+            if evt.type == KEYDOWN:
+                self.state = self.PRE_LEVEL
+                
+        elif self.state == self.LOST:
+            if evt.type == KEYDOWN:
+                self.end()
+                
+        elif self.state == self.WON:
+            if evt.type == KEYDOWN:
+                self.end()
+                
+    def update(self):
+        self.game.screen.blit(self.background, (0,0) )
+        if self.state == self.PRE_LEVEL:
+            self.log("next level")
+            self.log( "level: "+self.levels[self.current_level].name )
+            self.log( "score: "+str(self.score))
+        if self.state == self.POST_LEVEL:
+            self.log("level finished")
+            self.log( "score: "+str(self.score))
+        if self.state == self.LOST:
+            self.log("you lost")
+            self.log( "score: "+str(self.score))
+        if self.state == self.WON:
+            self.log("you won")
+            self.log( "score: "+str(self.score))
+                
 def main():
     g = engine.Game(800, 600, framerate = 20, title = "simulator")
-    g.run( Simulator(g) ) 
+    g.run( Runner(g) ) 
     
 if __name__ == "__main__":
     main()    
