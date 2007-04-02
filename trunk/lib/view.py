@@ -35,10 +35,14 @@ class View(Scene):
             self.group.add( self.addSegment(10, 0, 10, 10) )
             self.group.add( self.addSegment(0, 10, 0, 0) )
             
+            
             self.group.add( self.addGoal( 13, 6, 2.) )
             self.group.add( self.addGoal( -3, 6, 2.) )
+            self.group.add( self.addGoal( 5, 10, 2.) )
 
             self.world.add_attractor( world.Attractor( 11, 11, 0.5 ) )
+            self.world.add_passive( world.LimitedLifeSegment( 0,2,10,2 ) )
+            
         else:
             self.group.add( self.addFloor(0,0,2,0) )
 
@@ -111,12 +115,14 @@ class View(Scene):
         import sound
         self.world.loop(dt/1000.0)
         for evt in self.world.get_events():
-            print evt.ball.velocity.magnitude(), evt
-            n = evt.ball.velocity.magnitude()/50
-            if (n>1.0):
-                n = 1.0
-            vol = 1.0
-            sound.playSound(n, vol)
+            print evt
+            if isinstance(evt, world.Collision):
+                print evt.ball.velocity.magnitude(), evt
+                n = evt.ball.velocity.magnitude()/50
+                if (n>1.0):
+                    n = 1.0
+                vol = 1.0
+                sound.playSound(n, vol)
 
         self._update_camera(pygame.mouse.get_pos())
 
