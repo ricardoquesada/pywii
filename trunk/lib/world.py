@@ -25,6 +25,14 @@ class Collision(Event):
     def __repr__(self):
         return "<coll of %s with %s>"%(self.ball, self.other)
 
+class BallAtGoal(Event):
+    def __init__(self, ball):
+        self.ball = ball
+
+class BallLost(Event):
+    def __init__(self, ball):
+        self.ball = ball
+
 class ObjectGone(Event):
     def __init__(self, who):
         self.object = who
@@ -159,6 +167,7 @@ class Floor(Segment):
         return Vector2(0,0)
 
     def apply_collision(self, ball):
+        self.world.add_event( BallLost(ball) )
         self.world.remove_ball(ball)
 
 class Goal(GameObject):
@@ -183,6 +192,7 @@ class Goal(GameObject):
         return what
         
     def apply_collision(self, ball):
+        self.world.add_event( BallAtGoal(ball) )
         self.world.remove_ball(ball)
                     
 class World:

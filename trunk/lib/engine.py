@@ -38,7 +38,7 @@ class SceneExit(Exception):
     
 class Scene:
     bg_color = (0,0,0)
-    
+    log_font_size = 16
     @property 
     def background(self):
         if self._background is None:
@@ -50,6 +50,8 @@ class Scene:
         self.game = game
         self._background = None
         self.subscenes = []
+	self.logpos = 0
+	self.logfont = pygame.font.Font(None, self.log_font_size)
         self.init(*args, **kwargs)
         
     def init(self): pass
@@ -72,6 +74,7 @@ class Scene:
         pygame.display.flip()
         while 1:
             delta = self.game.tick()
+	    self.logpos = 0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: sys.exit()
                 else:
@@ -88,6 +91,11 @@ class Scene:
             for s in self.subscenes: s.update()
             self.update()
             pygame.display.flip()
+        
+    def log(self, text):
+        surf = self.logfont.render(text, 1, (255,255,255))
+        self.logpos += surf.get_height()
+        self.game.screen.blit( surf, (3, self.logpos) )
         
     def event(self, evt):
         pass
