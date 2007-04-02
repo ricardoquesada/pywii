@@ -25,19 +25,20 @@ class Collision(Event):
     def __repr__(self):
         return "<coll of %s with %s>"%(self.ball, self.other)
 
-class BallGone(Event):
-    def __init__(self, ball):
-        self.ball = ball
+class ObjectGone(Event):
+    def __init__(self, who):
+        self.object = who
     
     def __repr__(self):
-        return "<ball_gone %s>"%self.ball        
+        return "<object_gone %s>"%self.object        
 
-class NewBall(Event):    
-    def __init__(self, ball):
-        self.ball = ball
+class NewObject(Event):    
+    def __init__(self, who):
+        self.object = who
 
     def __repr__(self):
-        return "<new_ball %s>"%self.ball
+        return "<object_ball %s>"%self.object
+        
 class GameObject:
     def set_world(self, world):
         self.world = world
@@ -119,7 +120,16 @@ class Segment(GameObject):
         return what.reflect( Vector2(-self.segment.v.y, self.segment.v.x).normalize())*self.bounce
         
     
-            
+class LimitedLifeSegment(Segment):
+    def __init__(self, x1, y1, x2, y2, bounce=1.1, life=1):
+        Segment.__init__(self, x1, y1, x2, y2, bounce)
+        self.life = life
+        self.hits = 0
+    
+    def apply_collision(self, other):
+        self.hits += 1
+        if self.hits >= self.life:
+            self.world.remove_passive(self)
             
 class Floor(Segment):
     def __init__(self, x1, y1, x2, y2):
@@ -161,13 +171,16 @@ class World:
         self.balls_to_remove = []
         
         self.active = []
+        
         self.passive = []
+        self.passive_to_remove = []
+        
         self.attractors = []
         
         self.events = []
         
     def add_event(self, evt):
-        self.events.append( evt )
+        self.events.insert( 0, evt )
         
     def get_events(self):
         for i in range(len(self.events)):
@@ -179,11 +192,15 @@ class World:
 
     def remove_ball(self, ball):
         self.balls_to_remove.append(ball)
-        self.add_event( BallGone( ball ) )
+        self.add_event( ObjectGone( ball ) )
         
     def add_passive(self, what):
         what.set_world( self )
         self.passive.append( what )
+        
+    def remove_passive(self, what):
+        self.passive_to_remove.append( what )
+        self.add_event( ObjectGone( what ) )
         
     def add_attractor(self, what):
         what.set_world( self )
@@ -199,7 +216,10 @@ class World:
         for g in self.balls_to_remove:
             if g in self.balls: self.balls.remove(g)
         self.balls_to_remove = []
-        
+        for g in self.passive_to_remove:
+            if g in self.passive: self.passive.remove(g)
+        self.passive_to_remove = []  
+              
     def collide(self, who, movement, last=None):
         colls = []
         for l in [self.active, self.passive]:
