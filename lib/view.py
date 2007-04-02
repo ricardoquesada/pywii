@@ -26,7 +26,7 @@ class View(Scene):
         Scene.__init__(self, game, ORTHOGONAL) #PERSPECTIVE)
         self.world = world.World()
 
-        if 1:
+        if 0:
             #for n in range(-25,25,2):
             #    self.group.add( self.addBall(n, 5) )
             self.group.add( self.addBall( 5,5 ) )    
@@ -47,7 +47,7 @@ class View(Scene):
             self.group.add( self.addFloor(0,0,2,0) )
 
             self.group.add( self.addBall(1, 10) )
-            self.group.add( self.addSegment(0,3,2,3, bounce=2) )
+            self.group.add( self.addSegment(0,3,2,3, bounce=1.1) )
 
             self.group.add( self.addBall(5, 10) )
             self.group.add( self.addSegment(4,4,6,3) )
@@ -113,7 +113,7 @@ class View(Scene):
         
     def update(self, dt):
         import sound
-        self.world.loop(dt/1000.0)
+        self.world.loop(dt/500.0)
         for evt in self.world.get_events():
             print evt
             if isinstance(evt, world.Collision):

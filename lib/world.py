@@ -49,8 +49,27 @@ class GameObject:
     def apply_collision(self, other):
         pass
         
+    def collide(self, other, space_delta):
+        return None
+        
+class Generator(GameObject):
+    def __init__(self, position, lapse=5):
+        if not isinstance(position, Point2):
+            position = Point2(*position)
+        self.position = position
+        self.lapse = lapse
+        self.dt = 0
+        
+    def loop(self, dt):
+        self.dt += dt
+        while self.dt > self.lapse:
+            self.dt -= self.lapse
+            self.world.add_ball( Ball(self.position) )
+            
 class Ball(GameObject):
     def __init__(self, position, velocity=None):
+        if not isinstance(position, Point2):
+            position = Point2(*position)
         self.position = position
         if velocity is None: velocity=Vector2(0,0)
         self.velocity = velocity
@@ -132,8 +151,9 @@ class LimitedLifeSegment(Segment):
             self.world.remove_passive(self)
             
 class Floor(Segment):
-    def __init__(self, x1, y1, x2, y2):
-        self.segment =Line2(Point2(x1, y1), Point2(x2, y2))
+    def __init__(self, height):
+        self.height = height
+        self.segment =Line2(Point2(0, height), Point2(10, htight))
             
     def reflect(self, what):
         return Vector2(0,0)
@@ -169,11 +189,15 @@ class World:
     def __init__(self):
         self.balls = []
         self.balls_to_remove = []
+        self.balls_to_append = []
         
         self.active = []
+        self.active_to_remove = []
+        self.active_to_append = []
         
         self.passive = []
         self.passive_to_remove = []
+        self.passive_to_append = []
         
         self.attractors = []
         
@@ -188,7 +212,7 @@ class World:
                 
     def add_ball(self,ball):
         ball.set_world(self)
-        self.balls.append( ball )
+        self.balls_to_append.append( ball )
 
     def remove_ball(self, ball):
         self.balls_to_remove.append(ball)
@@ -196,12 +220,20 @@ class World:
         
     def add_passive(self, what):
         what.set_world( self )
-        self.passive.append( what )
+        self.passive_to_append.append( what )
         
     def remove_passive(self, what):
         self.passive_to_remove.append( what )
         self.add_event( ObjectGone( what ) )
+    
+    def add_active(self, what):
+        what.set_world( self )
+        self.active_to_append.append( what )
         
+    def remove_active(self, what):
+        self.active_to_remove.append( what )
+        self.add_event( ObjectGone( what ) )
+            
     def add_attractor(self, what):
         what.set_world( self )
         self.attractors.append( what )
@@ -213,13 +245,32 @@ class World:
                 a.attract( o )
         for o in self.active: o.loop(delta)
         
+        
         for g in self.balls_to_remove:
             if g in self.balls: self.balls.remove(g)
         self.balls_to_remove = []
+        
+        for g in self.balls_to_append:
+            if not g in self.balls: self.balls.append(g)
+        self.balls_to_append = []
+        
+        
         for g in self.passive_to_remove:
             if g in self.passive: self.passive.remove(g)
         self.passive_to_remove = []  
-              
+        
+        for g in self.passive_to_append:
+            if not g in self.passive: self.passive.append(g)
+        self.passive_to_append = []        
+        
+        for g in self.active_to_remove:
+            if g in self.active: self.active.remove(g)
+        self.active_to_remove = []  
+        
+        for g in self.active_to_append:
+            if not g in self.active: self.active.append(g)
+        self.active_to_append = []       
+        
     def collide(self, who, movement, last=None):
         colls = []
         for l in [self.active, self.passive]:
