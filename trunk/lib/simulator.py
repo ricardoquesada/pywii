@@ -47,8 +47,10 @@ class Simulator(engine.Scene):
                     self.stack.append( evt.pos )
                     self.state = BAR_END
                 elif self.state == BAR_END:
-                    start = self.view.from_screen(self.stack.pop())
-                    end = self.view.from_screen(evt.pos)
+                    start, end = self.new_segment( 
+                        self.view.from_screen(self.stack.pop()),
+                        self.view.from_screen(evt.pos)
+                        )
                     if not start==end:
                         self.world.add_passive( 
                             Segment( start[0], start[1], end[0], end[1] )
@@ -93,17 +95,32 @@ class Simulator(engine.Scene):
                     )
                 
         if self.state == BAR_END:
+            start, end = self.new_segment( 
+                    self.view.from_screen( self.stack[-1] ),
+                    self.view.from_screen( pygame.mouse.get_pos() ),
+                   )
+            start = self.view.to_screen( start )
+            end = self.view.to_screen( end )            
             pygame.draw.line( 
                     self.game.screen,
                     (255,255,255),
-                    self.stack[-1] ,
-                    pygame.mouse.get_pos() ,
+                    start ,
+                    end ,
                     )
         self.log("goal:   "+str(self.goal))
         self.log("lost:   "+str(self.lost))
         self.log("alive:  "+str(len(self.world.balls)))
         self.log("fps:    "+str( self.game.clock.get_fps() ))
-
+    
+    
+    def new_segment(self, start, end):
+        if start == end: return start, start+Vector2(100,0)
+        s = LineSegment2( Point2(*start), Point2(*end) )
+        v = s.v.normalized()
+        v *= 100
+        return s.p1, s.p1+v
+    
+    
 class LevelOne(Simulator):
     lives = 100
     name = "Level One"
