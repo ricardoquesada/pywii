@@ -17,15 +17,32 @@ from OpenGL.GLU import *
 from common import *
 from zza import xmenu
 
+import scene 
+import zza
 
-BEGINLINE, ENDLINE = range(2)
+def addBall(theView):
+    class AddBall(scene.doNothingHandler):
+        view = theView
+        def run(self):
+            self.view.addBallEv(self.lastClick, self.lastClick.pos)
+    return AddBall
+
+def rectaHandler(theView):
+    class RectaHandler(scene.twoClicks):
+        view=theView
+        def run(self):
+            print 'recta coord',self.click1.event.pos,'to',self.click2.event.pos
+            x1p, y1p = self.click1.event.pos
+            x2p, y2p = self.click2.event.pos
+            self.view.addLineEv(x1p,y1p,x2p,y2p)
+    return RectaHandler
+
+        
 
 class View(Scene):
-    
     def __init__(self, game):
-        Scene.__init__(self, game, ORTHOGONAL) #PERSPECTIVE)
+        Scene.__init__(self, game, ORTHOGONAL)
         self.world = world.World()
-
         if 0:
             #for n in range(-25,25,2):
             #    self.group.add( self.addBall(n, 5) )
@@ -58,12 +75,13 @@ class View(Scene):
         self.camera_y = -200
         self._move_camera(self.camera_x, self.camera_y)
             
-
-        def F(ev, npos):
-            pass #print ev
-        self.menu = xmenu(self, self.root_node, 
-            {"hola":self.addBallEv, "line":self.selLine, "que":F, "tal":F, "alecu":F, 
-             "como":F, "esta":F, "phil?":F})
+        self.menu = xmenu(self,
+            {"hola":addBall(self), 
+             "line":rectaHandler(self), 
+             "que":zza.exitMenu, 
+             "tal":zza.exitMenu, 
+             "alecu":zza.exitMenu, 
+             "phil?":zza.exitMenu})
              
         porcion = qgl.scene.Group()
         v = [ (0,0), (0,10), (10,10) ]
@@ -78,30 +96,10 @@ class View(Scene):
         v = [ (15,15), (10,0), (0,10) ]
         self.group.add( ballTexture, leafs.Triangle(v) )
         self.accept()
-        self.lineStat = BEGINLINE
 
-    def selLine(self, ev, npos):
-        if self.lineStat == BEGINLINE:
-            self.beginLine(ev,npos)
-        elif self.lineStat==ENDLINE:
-            self.endLine(ev,npos)
-
-    def beginLine(self, ev, npos):
-        self.lineFrom = npos
-        self.lineStat = ENDLINE
-        print 'begin line from:',npos
-        
-    def endLine(self, ev, npos):
-        self.lineStat = BEGINLINE
-        print 'end line:',self.lineFrom, 'to:',npos
-        x1,y1,_ = self.lineFrom
-        x2,y2,_ = npos
-        self.addLineEv(x1,y1,x2,y2)
-        
     def addLineEv(self, x1p,y1p,x2p,y2p):
         x1,y1,z1 = self.theMatrix * euclid.Point3(x1p,y1p,0)
         x2,y2,z2 = self.theMatrix * euclid.Point3(x2p,y2p,0)
-        print x1,y1,x2,y2
         ng = self.addSegment(x1,y1,x2,y2) 
         ng.accept(self.compiler)
         self.group.add( ng )
@@ -178,31 +176,19 @@ class View(Scene):
         t = -1*euclid.Point3(*self.TRANS)
         self.theMatrix = euclid.Matrix4.new_scale(*s).translate(*t)
 
-
-    def update_event(self, event):
-        if self.menu.updateEvent(event):
-            #skip other handlers
-            return
+    def handle_event(self, event):
         if event.type == KEYDOWN and event.key == K_ESCAPE:
             self.game.change_scene(MainMenu(self.game))
         elif event.type is MOUSEMOTION:
-            self.picker.set_position(event.pos)
-            self.root_node.accept(self.picker)
-            self.menu.moves(self.picker.hits)
-                                
+            pass
         elif event.type is MOUSEBUTTONDOWN:
-            #if event.button==1:
-            if not self.menu.shown:
-                self.menu.switch(event.pos)
-                return    
-            #tell the picker we are interested in the area clicked by the mouse
             self.picker.set_position(event.pos)
-            #ask the root node to accept the picker.
             self.root_node.accept(self.picker)
-            #picker.hits will be a list of nodes which were rendered at the position.
-            #to visualise which node was clicked, lets adjust its angle by 10 degrees.
-            for hit in self.picker.hits:
-                self.menu.select(hit, event)
+            if len(self.picker.hits)>0:
+                for hit in self.picker.hits:
+                    return
+            else:
+                self.push_handler(self.menu)
 
     def render(self):
         for ball in self.world.balls:
