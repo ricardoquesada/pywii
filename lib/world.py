@@ -61,18 +61,20 @@ class GameObject:
         return None
         
 class Generator(GameObject):
-    def __init__(self, position, lapse=5):
+    def __init__(self, position, lapse=5, max=10):
         if not isinstance(position, Point2):
             position = Point2(*position)
         self.position = position
         self.lapse = lapse
+        self.max = 10
         self.dt = 0
         
     def loop(self, dt):
         self.dt += dt
         while self.dt > self.lapse:
             self.dt -= self.lapse
-            self.world.add_ball( Ball(self.position) )
+            if len(self.world.balls) < self.max:
+                self.world.add_ball( Ball(self.position) )
             
 class Ball(GameObject):
     def __init__(self, position, velocity=None):
@@ -161,7 +163,7 @@ class LimitedLifeSegment(Segment):
 class Floor(Segment):
     def __init__(self, height):
         self.height = height
-        self.segment =Line2(Point2(0, height), Point2(10, height))
+        self.segment =Line2(Point2(-100, height), Point2(100, height))
             
     def reflect(self, what):
         return Vector2(0,0)

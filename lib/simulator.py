@@ -25,8 +25,11 @@ class Simulator(engine.Scene):
         self.state = BAR_START
         self.goal = 0
         self.lost = 0
+        self.bars = 0
         self.stack = []
         
+    def get_score(self):
+        return self.goal * 2 - self.lost - self.bars*2
     def setup_level(self):
         self.world.add_active( Generator((0,10)) )
         self.world.add_passive( Segment(-10,20,10,20) )
@@ -55,6 +58,7 @@ class Simulator(engine.Scene):
                         self.world.add_passive( 
                             Segment( start[0], start[1], end[0], end[1] )
                             )
+                        self.bars += 1
                     self.state = BAR_START
                 
     def loop(self, dt):
@@ -79,19 +83,34 @@ class Simulator(engine.Scene):
                 self.view.scale_to_screen( 3 ) , 
                 )
         for s in self.world.passive:
-            if isinstance(s, Segment):
+            if isinstance(s, LimitedLifeSegment):
+                pygame.draw.line( 
+                    self.game.screen,
+                    (0,255,0),
+                    self.view.to_screen( s.segment.p1 ) ,
+                    self.view.to_screen( s.segment.p2 ) ,
+                    )
+            elif isinstance(s, Segment):
                 pygame.draw.line( 
                     self.game.screen,
                     (255,255,255),
                     self.view.to_screen( s.segment.p1 ) ,
                     self.view.to_screen( s.segment.p2 ) ,
                     )
-            if isinstance(s, Goal):
+            elif isinstance(s, Goal):
                 pygame.draw.circle( 
                     self.game.screen,
                     (0,0,255),
                     self.view.to_screen( s.segment.c ) ,
                     self.view.scale_to_screen( s.segment.r ) , 
+                    )
+        for s in self.world.attractors:
+            if isinstance(s, Attractor):
+                pygame.draw.circle( 
+                    self.game.screen,
+                    (0,255,255),
+                    self.view.to_screen( s.position ) ,
+                    abs(self.view.scale_to_screen( s.force/10 ) ), 
                     )
                 
         if self.state == BAR_END:
@@ -143,6 +162,36 @@ class LevelTwo(Simulator):
         self.world.add_passive( Goal(0,60,15.) )
         self.world.add_passive( Floor(-200) )
 
+class LevelThree(Simulator):
+    lives = 100
+    name = "Level Three"
+    target = 20
+    
+    def setup_level(self):
+        self.world.add_active( Generator((0,10)) )
+        self.world.add_passive( Segment(-100,20,100,20) )
+        self.world.add_passive( LimitedLifeSegment(-100,20,0,100, life=5) )
+        self.world.add_passive( LimitedLifeSegment(0,100,100,20, life=5) )
+        self.world.add_passive( Goal(0,60,15.) )
+        self.world.add_passive( Floor(-200) )
+
+class LevelFour(Simulator):
+    lives = 100
+    name = "Level Four"
+    target = 20
+    
+    def setup_level(self):
+        self.world.add_active( Generator((0,10)) )
+        self.world.add_passive( Segment(-100,20,100,20) )
+        self.world.add_passive( LimitedLifeSegment(-100,20,0,100, life=5) )
+        self.world.add_passive( LimitedLifeSegment(0,100,100,20, life=5) )
+        self.world.add_attractor( Attractor(-100,20, force=-50) )
+        self.world.add_attractor( Attractor(5,-50, force=50) )
+        self.world.add_attractor( Attractor(100,20, force=-50) )
+        self.world.add_passive( Goal(0,60,15.) )
+        self.world.add_passive( Floor(-200) )
+        
+        
 class Runner(engine.Scene):
     log_font_size = 40
     PRE_LEVEL = 0
@@ -151,8 +200,10 @@ class Runner(engine.Scene):
     WON  = 3
     
     levels = [
+            LevelFour,
             LevelOne,
             LevelTwo,
+            LevelThree,
         ]
     def init(self):
         self.state = self.PRE_LEVEL
