@@ -102,7 +102,6 @@ class EventDispatcher(EventHandler):
         if event.type is MOUSEBUTTONDOWN:
             self.lastClickEv = event
             
-                    
         
 class Scene (EventDispatcher):
     def __init__(self, game, type=ORTHOGONAL):

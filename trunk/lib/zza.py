@@ -4,6 +4,7 @@ import scene
 import qgl
 import math
 import leafs
+import data
 
 class exitMenu:
     pass
@@ -19,8 +20,18 @@ class xmenu(scene.EventHandler):
         self.viewport.screen_dimensions = (0,0,800,600)
         self.rootnode.add(self.viewport)
         self.shown=False
-        self.selected=[]
+        self.selected=None
         self.groups=[]
+        self.textures = []
+        
+        for option in self.options:
+            try:
+                name = data.filepath("base-%s.png"%option)
+                open(name,"r")
+                texture = qgl.scene.state.Texture(name)
+            except Exception, e:
+                texture = qgl.scene.state.Texture(data.filepath("base.png"))
+            self.textures.append(texture)
         
     @property
     def rootnode(self):
@@ -38,11 +49,9 @@ class xmenu(scene.EventHandler):
             
             handler = self.callbacks[elemento]
             if handler is exitMenu:
-                print 'saliendo del menu'
                 self.pop_handler()
                 return
                 
-            print 'going to ',repr(handler)
             self.push_handler(handler())            
             
     def convertDiffToOGL(self):
@@ -60,8 +69,6 @@ class xmenu(scene.EventHandler):
                     (r*math.sin(startAng+coef2), r*math.cos(startAng+coef2))]
 
         #make it's group
-        #texture = self.ss.Texture("land.jpg")
-        #sphere = self.ss.Quad((40,40))
         count = len(self.options)
         groups=[]
         
@@ -81,9 +88,18 @@ class xmenu(scene.EventHandler):
             # #draw a simple triangle with simplest shading
             #v = [(0,0)]+ r1(coef,r*bandRatio,k)+r1(coef,r,k)
             #groups[k].add( texture, leafs.Triangle(v) )
+            
+            sphere = qgl.scene.state.Quad((40,40))            
+            gg = qgl.scene.Group()
+            gg.add(self.textures[k], sphere)
+            pp = v[2][0]+v[3][0], v[2][1]+v[3][1]
+            gg.translate= ( pp[0]/2,pp[1]/2,0)
+            
             g.add( leafs.PorcionMuzza(v) )
+            g.add(gg)
+            
             g.selectable = True
-            g.translate= pos[0]-dx,dy-pos[1],0
+            g.translate=pos[0]-dx,dy-pos[1],0            
             self.d[g]=k
             groups.append(g)
         self.groups = groups
@@ -101,20 +117,16 @@ class xmenu(scene.EventHandler):
             self.rootnode.accept(picker)
             if picker.hits:
                 for hit in picker.hits:
-                    print 'clickeo',hit
                     self.select(hit, event)
                     break
             else:
-                print 'acaaaaaaaaa....'
                 self.pop_handler()
                 
         elif event.type is USEREVENT:
             if event.code is scene.EV_HANDLER_ACTIVE:
                 pos = self.lastClick.pos
-                print 'activating menu'
                 self.show(pos)
             elif event.code is scene.EV_HANDLER_PASSIVE:
-                print 'going to hide!'
                 self.hide()
 
             
@@ -131,12 +143,11 @@ class xmenu(scene.EventHandler):
     def moves(self, groups):
         oldselected = self.selected
         groups = filter(lambda g:g in self.groups, groups)
-        self.selected = groups
-        for hit in groups:
-            self.mouseIn(hit)
-        for oldg in oldselected:
-            if oldg not in groups:
-                self.mouseOut(oldg)
+        self.selected = groups[0]
+        self.mouseIn(self.selected)
+        #for oldg in oldselected:
+        if oldselected not in [self.selected, None]:
+            self.mouseOut(oldselected)
     
     def show(self, pos):
         self.calc(pos)
