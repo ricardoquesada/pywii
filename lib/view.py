@@ -112,9 +112,9 @@ class View(Scene):
         self.group.add( ng )
                 
     def addBallEv(self, ev, npos):
-        print npos
-        print self.screenToAmbient(*npos)
-        ng = self.addBall(*self.screenToAmbient(*npos))
+        a,b = self.screenToAmbient(*npos)
+        x2,y2,z2 = self.theMatrix * euclid.Point3(a,b,0)
+        ng = self.addBall(x2,y2)
         ng.accept(self.compiler)
         self.group.add( ng )
         
