@@ -14,7 +14,6 @@ class MenuItem:
         self.zoom = 4
         self.x, self.y = x, y
         self.callback = callback
-        print dir(self.group)
 
     def enter(self):
         self.final_zoom = 6.0

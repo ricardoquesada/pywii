@@ -97,15 +97,24 @@ class View(Scene):
         self.group.add( ballTexture, leafs.Triangle(v) )
         self.accept()
 
+    def screenToAmbient(self, x,y):
+        ax,ay,bx,by=self.viewport.screen_dimensions 
+        dx,dy=(bx-ax)/2, (by-ay)/2
+        return x-dx, dy-y
+
     def addLineEv(self, x1p,y1p,x2p,y2p):
-        x1,y1,z1 = self.theMatrix * euclid.Point3(x1p,y1p,0)
-        x2,y2,z2 = self.theMatrix * euclid.Point3(x2p,y2p,0)
+        a,b = self.screenToAmbient(x1p,y1p)             
+        c,d = self.screenToAmbient(x2p,y2p)
+        x1,y1,z1 = self.theMatrix * euclid.Point3(a,b,0)
+        x2,y2,z2 = self.theMatrix * euclid.Point3(c,d,0)
         ng = self.addSegment(x1,y1,x2,y2) 
         ng.accept(self.compiler)
         self.group.add( ng )
                 
     def addBallEv(self, ev, npos):
-        ng = self.addBall(1, 10)
+        print npos
+        print self.screenToAmbient(*npos)
+        ng = self.addBall(*self.screenToAmbient(*npos))
         ng.accept(self.compiler)
         self.group.add( ng )
         
