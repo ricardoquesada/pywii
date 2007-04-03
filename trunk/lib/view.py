@@ -105,15 +105,16 @@ class View(Scene):
     def addLineEv(self, x1p,y1p,x2p,y2p):
         a,b = self.screenToAmbient(x1p,y1p)             
         c,d = self.screenToAmbient(x2p,y2p)
-        x1,y1,z1 = self.theMatrix * euclid.Point3(a,b,0)
-        x2,y2,z2 = self.theMatrix * euclid.Point3(c,d,0)
+        viewMatrix = self.getViewMatrix()
+        x1,y1,z1 = viewMatrix * euclid.Point3(a,b,0)
+        x2,y2,z2 = viewMatrix * euclid.Point3(c,d,0)
         ng = self.addSegment(x1,y1,x2,y2) 
         ng.accept(self.compiler)
         self.group.add( ng )
                 
     def addBallEv(self, ev, npos):
         a,b = self.screenToAmbient(*npos)
-        x2,y2,z2 = self.theMatrix * euclid.Point3(a,b,0)
+        x2,y2,z2 = self.getViewMatrix() * euclid.Point3(a,b,0)
         ng = self.addBall(x2,y2)
         ng.accept(self.compiler)
         self.group.add( ng )
@@ -177,13 +178,13 @@ class View(Scene):
         elif self.camera_y > bound_down:
             self.camera_y = bound_down
 
-        self.SCALE =  (20,20,0)
-        self.TRANS = (self.camera_x, self.camera_y,0)
-        self.group.scale= self.SCALE
-        self.group.translate=self.TRANS
-        s = 1.0/self.SCALE[0], 1.0/self.SCALE[1], self.SCALE[2]
-        t = -1*euclid.Point3(*self.TRANS)
-        self.theMatrix = euclid.Matrix4.new_scale(*s).translate(*t)
+        self.group.scale = (20.0,20.0,0.0)
+        self.group.translate = (self.camera_x, self.camera_y,0)
+
+    def getViewMatrix(self):
+        translate = -1*euclid.Point3(*self.group.translate)
+        scale = euclid.Point3(1.0/self.group.scale[0], 1.0/self.group.scale[1], 0)
+        return euclid.Matrix4.new_scale(*scale).translate(*translate)
 
     def handle_event(self, event):
         if event.type == KEYDOWN and event.key == K_ESCAPE:
