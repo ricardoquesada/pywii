@@ -48,10 +48,9 @@ class xmenu(scene.EventHandler):
             npos = pos[0]-dx, dy-pos[1], 0
             
             handler = self.callbacks[elemento]
+            self.pop_handler()    
             if handler is exitMenu:
-                self.pop_handler()
                 return
-                
             self.push_handler(handler())            
             
     def convertDiffToOGL(self):
