@@ -48,14 +48,13 @@ def GroupAdd(f):
 
 class View(Scene):
     def setup_level(self):
-        #raise ValueError("MUST OVERWRITE")
         self.group.add( self.addFloor(0,0,2,0) )
         return
-        self.group.add( self.addBall(1, 10) )
-        self.group.add( self.addSegment(0,3,2,3, bounce=1.1) )
-        self.group.add( self.addBall(5, 10) )
-        self.group.add( self.addSegment(4,4,6,3) )
-        self.group.add( self.addGoal(1,30, 3.0) )
+##        self.group.add( self.addBall(1, 10) )
+##        self.group.add( self.addSegment(0,3,2,3, bounce=1.1) )
+##        self.group.add( self.addBall(5, 10) )
+##        self.group.add( self.addSegment(4,4,6,3) )
+##        self.group.add( self.addGoal(1,30, 3.0) )
             
     def __init__(self, game):
         Scene.__init__(self, game, ORTHOGONAL)
@@ -99,17 +98,13 @@ class View(Scene):
         if matrix2==None: matrix1=self.getViewMatrix()
         x1,y1,z1 = matrix1 * euclid.Point3(a,b,0)
         x2,y2,z2 = matrix2 * euclid.Point3(c,d,0)
-        ng = self.addSegment(x1,y1,x2,y2) 
-        ng.accept(self.compiler)
-        self.group.add( ng )
+        self.addSegment(x1,y1,x2,y2) 
                 
     def addBallEv(self, npos):
         a,b = self.screenToAmbient(*npos)
         x2,y2,z2 = self.getViewMatrix() * euclid.Point3(a,b,0)
         ball = world.Ball(euclid.Point2(x2, y2) )
-        ng = self.addBall(ball)
-        ng.accept(self.compiler)
-        self.group.add( ng )
+        self.addBall(ball)
         
     def update(self, dt):
         import sound
@@ -123,7 +118,11 @@ class View(Scene):
                     n = 1.0
                 vol = 1.0
                 sound.playSound(n, vol)
-
+                
+            if isinstance(evt, world.NewObject):
+                if isinstance(evt.object, world.Ball):
+                    self.addBall(evt.object)
+                
         self._update_camera(pygame.mouse.get_pos())
 
     def _update_camera(self, pos):
@@ -196,15 +195,14 @@ class View(Scene):
     def render(self):
         for ball in self.world.balls:
             position = ball.position
-            #print repr(ball) #, ball.__class_
-            #print repr(ball.group), ball.group.__class__
             ball.group.translate = (position.x, position.y, 0)
             ball.group.angle += 4
         self.root_node.accept(self.renderer)
         
     @GroupAdd
     def addBall(self,ball):
-        self.world.add_ball(ball)
+        print 2,repr(ball)
+        #self.world.add_ball(ball)
         ballGroup = qgl.scene.Group()
         textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
         ballTexture = qgl.scene.state.Texture(data.filepath(textureFile))
