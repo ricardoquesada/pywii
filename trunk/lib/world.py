@@ -73,20 +73,10 @@ class Generator(GameObject):
     def loop(self, dt):
         self.dt += dt
         while self.dt > self.lapse:
-            print 'aca'
             self.dt -= self.lapse
             if len(self.world.balls) < self.max:
-                print 'x'
-                ball = Ball(self.position)
-                if self.view==None:
-                    print 1
-                    self.world.add_ball( ball )
-                else:
-                    print self.position
-                    self.position = Point2(1,10)
-                    print 2
-                    self.view.addBall(ball)
-                                
+                self.world.add_ball( Ball(Point2(1,10)) ) #self.position
+                                 
 class Ball(GameObject):
     def __init__(self, position, velocity=None):
         if not isinstance(position, Point2):
@@ -241,10 +231,12 @@ class World:
                 
     def add_ball(self,ball):
         ball.set_world(self)
+        self.add_event(NewObject(ball))
         self.balls_to_append.append( ball )
 
     def remove_ball(self, ball):
         self.balls_to_remove.append(ball)
+        #self.add_event(ObjectGone(ball))
         self.add_event( ObjectGone( ball ) )
         
     def add_passive(self, what):

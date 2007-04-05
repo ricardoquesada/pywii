@@ -11,7 +11,7 @@ class LevelOne(view.View):
         self.addSegment(-10,20,10,20) 
         self.addGoal(0,60,15.) 
         #self.addFloor(-200)
-        view.View.setup_level()
+        view.View.setup_level(self)
 
 class LevelTwo(view.View):
     lives = 100
@@ -21,8 +21,8 @@ class LevelTwo(view.View):
     def setup_level(self):
         self.addGenerator((0,10))
         self.addSegment(-100,20,100,20)
-        self.addGoal(0,60,15.) )
-        view.View.setup_level()
+        self.addGoal(0,60,15.)
+        view.View.setup_level(self)
 
 class LevelThree(view.View):
     lives = 100
