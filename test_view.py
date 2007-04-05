@@ -10,9 +10,9 @@ except:
     pass
 
 from game import Game
-from view import View
+from levels import LevelOne
 
 if __name__ == '__main__':
     g = Game()
-    g.change_scene(View(g))
+    g.change_scene(LevelOne(g))
     g.main_loop()

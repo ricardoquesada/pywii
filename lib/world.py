@@ -61,21 +61,32 @@ class GameObject:
         return None
         
 class Generator(GameObject):
-    def __init__(self, position, lapse=5, max=10):
+    def __init__(self, position, lapse=5, max=10, view=None):
         if not isinstance(position, Point2):
             position = Point2(*position)
         self.position = position
         self.lapse = lapse
         self.max = 10
         self.dt = 0
+        self.view = view
         
     def loop(self, dt):
         self.dt += dt
         while self.dt > self.lapse:
+            print 'aca'
             self.dt -= self.lapse
             if len(self.world.balls) < self.max:
-                self.world.add_ball( Ball(self.position) )
-            
+                print 'x'
+                ball = Ball(self.position)
+                if self.view==None:
+                    print 1
+                    self.world.add_ball( ball )
+                else:
+                    print self.position
+                    self.position = Point2(1,10)
+                    print 2
+                    self.view.addBall(ball)
+                                
 class Ball(GameObject):
     def __init__(self, position, velocity=None):
         if not isinstance(position, Point2):

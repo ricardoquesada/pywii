@@ -38,39 +38,30 @@ def rectaHandler(theView):
     return RectaHandler
 
         
+def GroupAdd(f):
+    def bigF(self, *args, **kwargs):
+        ng = f(self, *args,**kwargs)
+        ng.accept(self.compiler)
+        self.group.add(ng)
+        return ng
+    return bigF
 
 class View(Scene):
+    def setup_level(self):
+        #raise ValueError("MUST OVERWRITE")
+        self.group.add( self.addFloor(0,0,2,0) )
+        return
+        self.group.add( self.addBall(1, 10) )
+        self.group.add( self.addSegment(0,3,2,3, bounce=1.1) )
+        self.group.add( self.addBall(5, 10) )
+        self.group.add( self.addSegment(4,4,6,3) )
+        self.group.add( self.addGoal(1,30, 3.0) )
+            
     def __init__(self, game):
         Scene.__init__(self, game, ORTHOGONAL)
         self.world = world.World()
-        if 0:
-            #for n in range(-25,25,2):
-            #    self.group.add( self.addBall(n, 5) )
-            self.group.add( self.addBall( 5,5 ) )    
-            
-            self.group.add( self.addSegment(0, 0, 10, 0) )
-            self.group.add( self.addSegment(10, 0, 10, 10) )
-            self.group.add( self.addSegment(0, 10, 0, 0) )
-            
-            
-            self.group.add( self.addGoal( 13, 6, 2.) )
-            self.group.add( self.addGoal( -3, 6, 2.) )
-            self.group.add( self.addGoal( 5, 10, 2.) )
-
-            self.world.add_attractor( world.Attractor( 11, 11, 0.5 ) )
-            self.world.add_passive( world.LimitedLifeSegment( 0,2,10,2 ) )
-            
-        else:
-            self.group.add( self.addFloor(0,0,2,0) )
-
-            self.group.add( self.addBall(1, 10) )
-            self.group.add( self.addSegment(0,3,2,3, bounce=1.1) )
-
-            self.group.add( self.addBall(5, 10) )
-            self.group.add( self.addSegment(4,4,6,3) )
-
-            self.group.add( self.addGoal(1,30, 3.0) )
-
+        
+        self.setup_level()
         self.camera_x = 0
         self.camera_y = -200
         self._move_camera(self.camera_x, self.camera_y)
@@ -115,7 +106,8 @@ class View(Scene):
     def addBallEv(self, npos):
         a,b = self.screenToAmbient(*npos)
         x2,y2,z2 = self.getViewMatrix() * euclid.Point3(a,b,0)
-        ng = self.addBall(x2,y2)
+        ball = world.Ball(euclid.Point2(x2, y2) )
+        ng = self.addBall(ball)
         ng.accept(self.compiler)
         self.group.add( ng )
         
@@ -204,16 +196,16 @@ class View(Scene):
     def render(self):
         for ball in self.world.balls:
             position = ball.position
+            #print repr(ball) #, ball.__class_
+            #print repr(ball.group), ball.group.__class__
             ball.group.translate = (position.x, position.y, 0)
             ball.group.angle += 4
         self.root_node.accept(self.renderer)
         
-
-    def addBall(self, x, y):
-        ball = world.Ball(euclid.Point2(x, y) )
+    @GroupAdd
+    def addBall(self,ball):
         self.world.add_ball(ball)
         ballGroup = qgl.scene.Group()
-
         textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
         ballTexture = qgl.scene.state.Texture(data.filepath(textureFile))
         #ballQuad = qgl.scene.state.Quad((3,3))
@@ -225,9 +217,11 @@ class View(Scene):
         ball.group = ballGroup
         return ballGroup
 
+    @GroupAdd
     def addFloor(self, *a, **kw):
         return self.addSegment(*a, **kw)
 
+    @GroupAdd
     def addSegment(self, x1, y1, x2, y2, **kw):
         segment = world.Segment(x1, y1, x2, y2, **kw)
         self.world.add_passive( segment )
@@ -242,7 +236,8 @@ class View(Scene):
         segmentGroup.add(segmentQuad)
         segment.group = segmentGroup
         return segmentGroup
-
+        
+    @GroupAdd
     def addGoal(self, x, y, r):
         goal = world.Goal(x, y, r)
         self.world.add_passive( goal )
@@ -254,6 +249,20 @@ class View(Scene):
         goalGroup.add(goalQuad)
         goal.group = goalGroup
         return goalGroup
+
+    @GroupAdd
+    def addGenerator(self, pos, r=1):
+        x,y=pos
+        gen = world.Generator(pos,view=self)
+        self.world.add_active( gen )
+        genGroup = qgl.scene.Group()
+        genGroup.translate = (x, y, 0.0)
+        genTexture = qgl.scene.state.Texture(data.filepath("bola2.png"))
+        genQuad = qgl.scene.state.Quad((r*2,r*2))
+        genGroup.add(genTexture)
+        genGroup.add(genQuad)
+        gen.group = genGroup
+        return genGroup
 
 
 
