@@ -24,7 +24,7 @@ def addBall(theView):
     class AddBall(scene.doNothingHandler):
         view = theView
         def run(self):
-            self.view.addBallEv(self.lastClick, self.lastClick.pos)
+            self.view.addBallEv(self.lastClick.pos)
     return AddBall
 
 def rectaHandler(theView):
@@ -34,7 +34,7 @@ def rectaHandler(theView):
             print 'recta coord',self.click1.event.pos,'to',self.click2.event.pos
             x1p, y1p = self.click1.event.pos
             x2p, y2p = self.click2.event.pos
-            self.view.addLineEv(x1p,y1p,x2p,y2p)
+            self.view.addLineEv(x1p,y1p,x2p,y2p, self.click1.matrix, self.click2.matrix)
     return RectaHandler
 
         
@@ -97,22 +97,22 @@ class View(Scene):
         self.group.add( ballTexture, leafs.Triangle(v) )
         self.accept()
 
-    def screenToAmbient(self, x,y):
-        ax,ay,bx,by=self.viewport.screen_dimensions 
-        dx,dy=(bx-ax)/2, (by-ay)/2
-        return x-dx, dy-y
+    def saveState(self, event):
+        Scene.saveState(self, event)
+        self.lastClickMatrix = self.getViewMatrix()
 
-    def addLineEv(self, x1p,y1p,x2p,y2p):
+    def addLineEv(self, x1p,y1p,x2p,y2p,matrix1=None, matrix2=None):
         a,b = self.screenToAmbient(x1p,y1p)             
         c,d = self.screenToAmbient(x2p,y2p)
-        viewMatrix = self.getViewMatrix()
-        x1,y1,z1 = viewMatrix * euclid.Point3(a,b,0)
-        x2,y2,z2 = viewMatrix * euclid.Point3(c,d,0)
+        if matrix1==None: matrix1=self.getViewMatrix()
+        if matrix2==None: matrix1=self.getViewMatrix()
+        x1,y1,z1 = matrix1 * euclid.Point3(a,b,0)
+        x2,y2,z2 = matrix2 * euclid.Point3(c,d,0)
         ng = self.addSegment(x1,y1,x2,y2) 
         ng.accept(self.compiler)
         self.group.add( ng )
                 
-    def addBallEv(self, ev, npos):
+    def addBallEv(self, npos):
         a,b = self.screenToAmbient(*npos)
         x2,y2,z2 = self.getViewMatrix() * euclid.Point3(a,b,0)
         ng = self.addBall(x2,y2)
@@ -163,6 +163,7 @@ class View(Scene):
 
 
     def _move_camera(self, dx, dy):
+        dx=dy=0 #XXX REMOVE SCROLL
         max_delta = 10
         self.camera_x += dx / 5
         self.camera_y += dy / 5

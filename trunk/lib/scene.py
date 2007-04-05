@@ -11,8 +11,10 @@ EV_HANDLER_ACTIVE, EV_HANDLER_PASSIVE, EV_PUSH_HANDLER, EV_POP_HANDLER = range(4
 class EventHandler:
     def handle_event(self, event):
         raise NotImplementedError("You must overwrite this method.")        
-    def __init__(self):
+    def __init__(self, otherHandler=None):
         self.parent=None
+        if otherHandler<>None:
+            self.set_parent(otherHandler.parent)
         
     @property
     def lastClick(self):
@@ -28,26 +30,30 @@ class EventHandler:
         post(Event(USEREVENT, code=EV_POP_HANDLER)) 
         
 class clickHandler(EventHandler):
+    def setFromLast(self):
+        self.event = self.parent.lastClick
+        self.matrix = self.parent.lastClickMatrix
     def handle_event(self, event):
         if event.type is MOUSEBUTTONDOWN:
             self.event = event
+            self.matrix = self.parent.lastClickMatrix
             self.pop_handler()
             
 class twoClicks(EventHandler):
     def run(self):
         raise NotImplementedError("You must overwrite this method.")  
-    def __init__(self):
-        EventHandler.__init__(self)
+    def __init__(self, *args):
+        EventHandler.__init__(self, *args)
         self.click1 = None
         self.click2 = None
     def handle_event(self, event):
         if self.click1 is None:
-            self.click1 = clickHandler()
-            self.click1.event = self.lastClick
+            self.click1 = clickHandler(self)
+            self.click1.setFromLast()
         if event.type is USEREVENT:
             if event.code is EV_HANDLER_ACTIVE:
                 if self.click2 is None:
-                    self.click2 = clickHandler()
+                    self.click2 = clickHandler(self)
                     self.push_handler(self.click2)
                 else:
                     self.pop_handler()
@@ -100,8 +106,10 @@ class EventDispatcher(EventHandler):
                 
         self.handler.handle_event(event)
         if event.type is MOUSEBUTTONDOWN:
-            self.lastClickEv = event
+            self.saveState(event)
             
+    def saveState(self, event):
+        self.lastClickEv = event
         
 class Scene (EventDispatcher):
     def __init__(self, game, type=ORTHOGONAL):
@@ -131,7 +139,12 @@ class Scene (EventDispatcher):
         self.root_node.add(self.viewport)
         self.viewport.add(self.group)
         self.root_node.accept(self.compiler)
-
+        
+    def screenToAmbient(self, x, y):
+        ax,ay,bx,by=self.viewport.screen_dimensions 
+        dx,dy=(bx-ax)/2, (by-ay)/2
+        return x-dx, dy-y
+        
     def render(self):
         self.root_node.accept(self.renderer)
 
