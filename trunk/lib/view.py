@@ -179,7 +179,7 @@ class View(Scene):
         elif self.camera_y > bound_down:
             self.camera_y = bound_down
 
-        self.group.scale = (20.0,20.0,0.0)
+        self.group.scale = (10.0,10.0,0.0)
         self.group.translate = (self.camera_x, self.camera_y,0)
 
     def getViewMatrix(self):
@@ -236,7 +236,7 @@ class View(Scene):
         dx = x2-x1
         segmentGroup.angle = math.degrees(math.atan2(dy, dx))
         segmentGroup.translate = ( x1 + dx/2, y1 + dy/2, 0.0 )
-        segmentTexture = qgl.scene.state.Texture(data.filepath("piso.png"))
+        segmentTexture = qgl.scene.state.Texture(data.filepath("rebotador.png"))
         segmentQuad = qgl.scene.state.Quad((math.hypot(dx,dy)+1,1))
         segmentGroup.add(segmentTexture)
         segmentGroup.add(segmentQuad)
