@@ -2,7 +2,7 @@ from euclid import *
 import time
 
 gravity = Vector2(0,-9.81/10) # m/s**2
-max_speed = 200
+max_speed = 50
             
 def cap(vec, what):
         if vec.magnitude() > what:
@@ -133,7 +133,7 @@ class Attractor(GameObject):
         self.force = force
         
     def attract(self, other):
-        force = self.force/(self.position.distance(other.position)**2)
+        force = self.force/((self.position.distance(other.position)/5)**2)
         vec = self.position-other.position
         vec.normalize()
         vec *= force
@@ -182,6 +182,12 @@ class Floor(Segment):
     def apply_collision(self, ball):
         self.world.add_event( BallLost(ball) )
         self.world.remove_ball(ball)
+
+class Ceiling(GameObject):
+    def __init__(self, height):
+        self.height = height
+        self.segment =Line2(Point2(-100, height), Point2(100, height))
+            
 
 class Goal(GameObject):
     def __init__(self, x, y,radius):
