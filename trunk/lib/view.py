@@ -60,11 +60,6 @@ class View(Scene):
     def setup_level(self):
 ##        self.group.add( self.addFloor(0,0,2,0) )
         return
-##        self.group.add( self.addBall(1, 10) )
-##        self.group.add( self.addSegment(0,3,2,3, bounce=1.1) )
-##        self.group.add( self.addBall(5, 10) )
-##        self.group.add( self.addSegment(4,4,6,3) )
-##        self.group.add( self.addGoal(1,30, 3.0) )
             
     def __init__(self, game):
         Scene.__init__(self, game, ORTHOGONAL)
