@@ -4,7 +4,7 @@ pygame.mixer.pre_init(44100, -16, False, 1024)
 
 def buildSounds():
     ret = []
-    for n in range(12*5):
+    for n in range(12*4):
         filename = data.filepath("sonidos/tonos%03d.ogg"%n)
         ret.append(pygame.mixer.Sound(filename))
     return ret
