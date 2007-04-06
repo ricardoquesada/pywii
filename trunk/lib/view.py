@@ -23,18 +23,26 @@ import zza
 def addBall(theView):
     class AddBall(scene.doNothingHandler):
         view = theView
+        def __init__(self, popupPosition, *a):
+            scene.doNothingHandler.__init__(self, *a)
+            self.popupPosition = popupPosition
+            print "adding ball...", a, popupPosition
         def run(self):
-            self.view.addBallEv(self.lastClick.pos)
+            self.view.addBallEv(self.popupPosition)
     return AddBall
 
 def rectaHandler(theView):
     class RectaHandler(scene.twoClicks):
         view=theView
+        def __init__(self, popupPosition, *a):
+            scene.twoClicks.__init__(self, *a)
+            self.popupPosition = popupPosition
+            print "handling rect...", a
         def run(self):
-            print 'recta coord',self.click1.event.pos,'to',self.click2.event.pos
-            x1p, y1p = self.click1.event.pos
-            x2p, y2p = self.click2.event.pos
-            self.view.addLineEv(x1p,y1p,x2p,y2p, self.click1.matrix, self.click2.matrix)
+            print self.popupPosition, self.click2.position
+            self.view.addLineEv(self.popupPosition, self.click2.position)
+        def motion(self):
+            pass
     return RectaHandler
 
         
@@ -48,7 +56,7 @@ def GroupAdd(f):
 
 class View(Scene):
     def setup_level(self):
-        self.group.add( self.addFloor(0,0,2,0) )
+##        self.group.add( self.addFloor(0,0,2,0) )
         return
 ##        self.group.add( self.addBall(1, 10) )
 ##        self.group.add( self.addSegment(0,3,2,3, bounce=1.1) )
@@ -87,23 +95,11 @@ class View(Scene):
         self.group.add( ballTexture, leafs.Triangle(v) )
         self.accept()
 
-    def saveState(self, event):
-        Scene.saveState(self, event)
-        self.lastClickMatrix = self.getViewMatrix()
-
-    def addLineEv(self, x1p,y1p,x2p,y2p,matrix1=None, matrix2=None):
-        a,b = self.screenToAmbient(x1p,y1p)             
-        c,d = self.screenToAmbient(x2p,y2p)
-        if matrix1==None: matrix1=self.getViewMatrix()
-        if matrix2==None: matrix1=self.getViewMatrix()
-        x1,y1,z1 = matrix1 * euclid.Point3(a,b,0)
-        x2,y2,z2 = matrix2 * euclid.Point3(c,d,0)
+    def addLineEv(self, (x1,y1), (x2,y2)):
         self.addSegment(x1,y1,x2,y2) 
                 
-    def addBallEv(self, npos):
-        a,b = self.screenToAmbient(*npos)
-        x2,y2,z2 = self.getViewMatrix() * euclid.Point3(a,b,0)
-        ball = world.Ball(euclid.Point2(x2, y2) )
+    def addBallEv(self, worldPos):
+        ball = world.Ball(euclid.Point2(*worldPos) )
         self.addBall(ball)
         
     def update(self, dt):
@@ -190,7 +186,12 @@ class View(Scene):
                 for hit in self.picker.hits:
                     return
             else:
-                self.push_handler(self.menu)
+                self.menu.popup(event.pos)
+
+    def worldPosFromMouse(self, mousePos):
+        a,b = self.screenToAmbient(*mousePos)             
+        x1,y1,z1 = self.getViewMatrix() * euclid.Point3(a,b,0)
+        return x1, y1
 
     def render(self):
         for ball in self.world.balls:
@@ -210,6 +211,8 @@ class View(Scene):
         ballGroup.add(ballTexture)
         ballGroup.add(ballQuad)
         ballGroup.axis = (0,1,0)
+        position = ball.position
+        ballGroup.translate = (position.x, position.y, 0)
         ball.group = ballGroup
         return ballGroup
 

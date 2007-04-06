@@ -37,21 +37,14 @@ class xmenu(scene.EventHandler):
     def rootnode(self):
         return self.scene.root_node
         
-    def select(self, group, ev):
+    def select(self, group):
         if group in self.groups:
             elemento = self.options[self.d[group]]
-            xev = self.lastClick
-            if xev is None:
-                return
-            pos = xev.pos
-            dx,dy=self.convertDiffToOGL()
-            npos = pos[0]-dx, dy-pos[1], 0
-            
             handler = self.callbacks[elemento]
             self.pop_handler()    
             if handler is exitMenu:
                 return
-            self.push_handler(handler())            
+            self.push_handler(handler(self.worldPopupPosition))
             
     def convertDiffToOGL(self):
         ax,ay,bx,by=self.viewport.screen_dimensions 
@@ -116,14 +109,13 @@ class xmenu(scene.EventHandler):
             self.rootnode.accept(picker)
             if picker.hits:
                 for hit in picker.hits:
-                    self.select(hit, event)
-                    break
+                    self.select(hit)
             else:
                 self.pop_handler()
                 
         elif event.type is USEREVENT:
             if event.code is scene.EV_HANDLER_ACTIVE:
-                pos = self.lastClick.pos
+                pos = self.popupPosition
                 self.show(pos)
             elif event.code is scene.EV_HANDLER_PASSIVE:
                 self.hide()
@@ -166,3 +158,8 @@ class xmenu(scene.EventHandler):
                 raise ValueError('Invalid position')
             self.show(pos)
                 
+    def popup(self, position):
+        print "popping up at...", position
+        self.popupPosition = position
+        self.worldPopupPosition = self.scene.worldPosFromMouse(position)
+        self.scene.push_handler(self)
