@@ -1,6 +1,5 @@
 import view
 from world import *
-
 class LevelOne(view.View):
     lives = 100
     name = "Level One"
@@ -19,6 +18,7 @@ class LevelTwo(view.View):
     target = 20
     
     def setup_level(self):
+        raise 'bla'
         self.addGenerator((0,10))
         self.addSegment(-100,20,100,20)
         self.addGoal(0,60,15.)
@@ -53,3 +53,5 @@ class LevelFour(view.View):
         self.world.add_passive( Goal(0,60,15.) )
         self.world.add_passive( Floor(-200) )
         
+levels=('one',LevelOne), ('two',LevelTwo)
+
