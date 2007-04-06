@@ -186,6 +186,17 @@ class Simulator(engine.Scene):
         return start, end
     
     
+class LevelZero(Simulator):
+    lives = 50
+    name = "Level Zero"
+    target = 20
+    
+    def setup_level(self):
+        self.world.add_active( Generator((-50,10)) )
+        self.world.add_passive( Segment(-60,20,-40,20) )
+        self.world.add_passive( Goal(50,60,15.) )
+        self.world.add_passive( Floor(-200) )
+
 class LevelOne(Simulator):
     lives = 50
     name = "Level One"
@@ -316,6 +327,7 @@ class Runner(engine.Scene):
     WON  = 3
     
     levels = [
+            LevelZero,
             LevelOne,
             LevelTwo,
             LevelThree,
