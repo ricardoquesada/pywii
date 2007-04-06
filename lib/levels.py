@@ -18,7 +18,6 @@ class LevelTwo(view.View):
     target = 20
     
     def setup_level(self):
-        raise 'bla'
         self.addGenerator((0,10))
         self.addSegment(-100,20,100,20)
         self.addGoal(0,60,15.)
