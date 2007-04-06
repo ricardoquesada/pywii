@@ -4,7 +4,7 @@ from pygame.locals import *
 
 from menu import Menu
 from scene import Scene
-from levels import *
+import levels
 
 class MainMenu(Scene):
     
@@ -31,7 +31,7 @@ class MainMenu(Scene):
     # Handlers 
 
     def on_new_game(self):        
-        self.game.change_scene(LevelOne(self.game))
+        self.game.change_scene(levels.LevelOne(self.game))
 
     def on_credits(self):
         print "Ha seleccionado 'credits'"
