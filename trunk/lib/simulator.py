@@ -5,6 +5,7 @@ from world import *
 def getpos(what):
     return (what.position.x, what.position.y)
     
+    
 BAR_START = 0
 BAR_END = 1
 MAX_ENERGY = 100
