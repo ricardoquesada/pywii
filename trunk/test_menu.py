@@ -11,9 +11,9 @@ except:
 
 
 from game import Game
-from main_menu import MainMenu
+from levels import *
 
 if __name__ == '__main__':
     g = Game()
-    g.change_scene(MainMenu(g))
+    g.change_scene(view.MainMenu(g))
     g.main_loop()
