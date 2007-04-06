@@ -20,6 +20,8 @@ from zza import xmenu
 import scene 
 import zza
 
+QUAD_HEIGHT=4
+
 def addBall(theView):
     class AddBall(scene.doNothingHandler):
         view = theView
@@ -66,6 +68,7 @@ class View(Scene):
     def __init__(self, game):
         Scene.__init__(self, game, ORTHOGONAL)
         self.world = world.World()
+        self.root_node.background_color = (70/256.0,197/256.0,220/256.0,1.0)
         
         self.setup_level()
         self.camera_x = 0
@@ -89,8 +92,8 @@ class View(Scene):
             porcion.translate = -5,0,10
             self.group.add( porcion )
 
-            textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
-            ballTexture = qgl.scene.state.Texture(data.filepath(textureFile))
+            #textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
+            ballTexture = qgl.scene.state.Texture(data.filepath("dad.gif"))
             v = [ (15,15), (10,0), (0,10) ]
             self.group.add( ballTexture, leafs.Triangle(v) )
         self.initLineGhost()
@@ -151,7 +154,7 @@ class View(Scene):
 
 
     def _move_camera(self, dx, dy):
-        dx=dy=0 #XXX REMOVE SCROLL
+        #dx=dy=0 #XXX REMOVE SCROLL
         max_delta = 10
         self.camera_x += dx / 5
         self.camera_y += dy / 5
@@ -167,6 +170,7 @@ class View(Scene):
         elif self.camera_y > bound_down:
             self.camera_y = bound_down
 
+        #self.group.scale = (15.0,15.0,0.0)
         self.group.scale = (5.0,5.0,0.0)
         self.group.translate = (self.camera_x, self.camera_y,0)
 
@@ -198,20 +202,23 @@ class View(Scene):
         for ball in self.world.balls:
             position = ball.position
             ball.group.translate = (position.x, position.y, 0)
+            #ball.group.axis = (1,.5,.7)
             ball.group.angle += 4
         self.root_node.accept(self.renderer)
         
     @GroupAdd
     def addBall(self,ball):
         ballGroup = qgl.scene.Group()
-        textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
-        ballTexture = qgl.scene.state.Texture(data.filepath(textureFile))
+        #textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
+        #ballTexture = qgl.scene.state.Texture(data.filepath(textureFile))
+        ballTexture = qgl.scene.state.Texture(data.filepath("dad.gif"))
         #ballQuad = qgl.scene.state.Quad((3,3))
-        SEGS=16
-        ballQuad = qgl.scene.state.Sphere(1, x_segments=SEGS, y_segments=SEGS)
+        #SEGS=16
+        #ballQuad = qgl.scene.state.Sphere(1, x_segments=SEGS, y_segments=SEGS)
+        ballQuad = qgl.scene.state.Quad((3,6))
         ballGroup.add(ballTexture)
         ballGroup.add(ballQuad)
-        ballGroup.axis = (0,1,0)
+        ballGroup.axis = (0,0,1)
         position = ball.position
         ballGroup.translate = (position.x, position.y, 0)
         ball.group = ballGroup
@@ -225,7 +232,7 @@ class View(Scene):
         self.ghostGroup = qgl.scene.Group()
         self.ghostGroup.scale = (0,0,0)
         segmentTexture = qgl.scene.state.Texture(data.filepath("rebotador-ghost.png"))
-        segmentQuad = qgl.scene.state.Quad((1,1))
+        segmentQuad = qgl.scene.state.Quad((1,QUAD_HEIGHT))
         self.ghostGroup.add(segmentTexture)
         self.ghostGroup.add(segmentQuad)
         self.group.add(self.ghostGroup)
@@ -250,7 +257,7 @@ class View(Scene):
         segmentGroup.angle = math.degrees(math.atan2(dy, dx))
         segmentGroup.translate = ( x1 + dx/2, y1 + dy/2, 0.0 )
         segmentTexture = qgl.scene.state.Texture(data.filepath("rebotador.png"))
-        segmentQuad = qgl.scene.state.Quad((math.hypot(dx,dy)+1,1))
+        segmentQuad = qgl.scene.state.Quad((math.hypot(dx,dy)+1,QUAD_HEIGHT))
         segmentGroup.add(segmentTexture)
         segmentGroup.add(segmentQuad)
         segment.group = segmentGroup
