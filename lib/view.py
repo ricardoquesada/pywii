@@ -98,6 +98,13 @@ class View(Scene):
             v = [ (15,15), (10,0), (0,10) ]
             self.group.add( ballTexture, leafs.Triangle(v) )
         self.initLineGhost()
+        mountainsGroup = qgl.scene.Group()
+        mountainsTexture = qgl.scene.state.Texture(data.filepath("montagnas.png"))
+        FACTOR= 8
+        mountainsQuad = qgl.scene.state.Quad((2403/FACTOR,427/FACTOR))
+        mountainsGroup.translate = (0,-53,0)
+        mountainsGroup.add(mountainsTexture, mountainsQuad)
+        self.group.add(mountainsGroup)
         self.accept()
 
     def addLineEv(self, (x1,y1), (x2,y2)):
