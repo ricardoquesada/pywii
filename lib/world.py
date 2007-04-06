@@ -75,7 +75,7 @@ class Generator(GameObject):
         while self.dt > self.lapse:
             self.dt -= self.lapse
             if len(self.world.balls) < self.max:
-                self.world.add_ball( Ball(Point2(1,10)) ) #self.position
+                self.world.add_ball( Ball(self.position) )
                                  
 class Ball(GameObject):
     def __init__(self, position, velocity=None):

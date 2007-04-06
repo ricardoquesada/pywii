@@ -9,7 +9,7 @@ class LevelOne(view.View):
     def setup_level(self):
         self.addGenerator((0,10))
         self.addSegment(-10,20,10,20) 
-        self.addGoal(0,60,15.) 
+        self.addGoal(0,60,5.) 
         #self.addFloor(-200)
         view.View.setup_level(self)
 

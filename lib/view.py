@@ -170,7 +170,7 @@ class View(Scene):
         elif self.camera_y > bound_down:
             self.camera_y = bound_down
 
-        self.group.scale = (10.0,10.0,0.0)
+        self.group.scale = (5.0,5.0,0.0)
         self.group.translate = (self.camera_x, self.camera_y,0)
 
     def getViewMatrix(self):
