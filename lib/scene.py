@@ -103,7 +103,10 @@ class EventDispatcher(EventHandler):
                 return
             elif event.code is EV_POP_HANDLER: 
                 self.update_event( pygame.event.Event(USEREVENT, code=EV_HANDLER_PASSIVE))        
-                self.handlers.pop()
+                try:
+                    self.handlers.pop()
+                except:
+                    pass
                 self.update_event( pygame.event.Event(USEREVENT, code=EV_HANDLER_ACTIVE))        
                 return
                 
