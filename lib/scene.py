@@ -30,13 +30,9 @@ class EventHandler:
         post(Event(USEREVENT, code=EV_POP_HANDLER)) 
         
 class clickHandler(EventHandler):
-    def setFromLast(self):
-        self.event = self.parent.lastClick
-        self.matrix = self.parent.lastClickMatrix
     def handle_event(self, event):
         if event.type is MOUSEBUTTONDOWN:
-            self.event = event
-            self.matrix = self.parent.lastClickMatrix
+            self.position = self.parent.worldPosFromMouse(event.pos)
             self.pop_handler()
             
 class twoClicks(EventHandler):
@@ -47,9 +43,9 @@ class twoClicks(EventHandler):
         self.click1 = None
         self.click2 = None
     def handle_event(self, event):
+        print "***", event.type
         if self.click1 is None:
             self.click1 = clickHandler(self)
-            self.click1.setFromLast()
         if event.type is USEREVENT:
             if event.code is EV_HANDLER_ACTIVE:
                 if self.click2 is None:
@@ -67,7 +63,6 @@ class doNothingHandler(EventHandler):
             if event.code is EV_HANDLER_ACTIVE:
                 self.pop_handler()
                 self.run()
-
 
 class EventDispatcher(EventHandler): 
     def __init__(self):
@@ -105,11 +100,6 @@ class EventDispatcher(EventHandler):
                 return
                 
         self.handler.handle_event(event)
-        if event.type is MOUSEBUTTONDOWN:
-            self.saveState(event)
-            
-    def saveState(self, event):
-        self.lastClickEv = event
         
 class Scene (EventDispatcher):
     def __init__(self, game, type=ORTHOGONAL):
