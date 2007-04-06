@@ -12,6 +12,7 @@ def buildSounds():
 sounds = buildSounds()
 def playSound(n, vol):
     n = int(n*len(sounds))%len(sounds)
-    chan = sounds[n].play()
-    if chan is not None:
-        chan.set_volume(vol)
+    chan = pygame.mixer.find_channel(True)
+    chan.play(sounds[n])
+    # podriamos Jugar con el stereo!
+    chan.set_volume(vol)
