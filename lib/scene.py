@@ -30,14 +30,21 @@ class EventHandler:
         post(Event(USEREVENT, code=EV_POP_HANDLER)) 
         
 class clickHandler(EventHandler):
+    def motion(self, pos):
+        pass
     def handle_event(self, event):
         if event.type is MOUSEBUTTONDOWN:
             self.position = self.parent.worldPosFromMouse(event.pos)
             self.pop_handler()
+        if event.type is MOUSEMOTION:
+            position = self.parent.worldPosFromMouse(event.pos)
+            self.motion(position)
             
 class twoClicks(EventHandler):
     def run(self):
         raise NotImplementedError("You must overwrite this method.")  
+    def motion(self):
+        raise NotImplementedError("This other method too, piscui.")  
     def __init__(self, *args):
         EventHandler.__init__(self, *args)
         self.click1 = None
@@ -50,6 +57,7 @@ class twoClicks(EventHandler):
             if event.code is EV_HANDLER_ACTIVE:
                 if self.click2 is None:
                     self.click2 = clickHandler(self)
+                    self.click2.motion = self.motion
                     self.push_handler(self.click2)
                 else:
                     self.pop_handler()

@@ -37,12 +37,11 @@ def rectaHandler(theView):
         def __init__(self, popupPosition, *a):
             scene.twoClicks.__init__(self, *a)
             self.popupPosition = popupPosition
-            print "handling rect...", a
         def run(self):
-            print self.popupPosition, self.click2.position
+            self.view.hideLineGhost()
             self.view.addLineEv(self.popupPosition, self.click2.position)
-        def motion(self):
-            pass
+        def motion(self, position):
+            self.view.showLineGhost(self.popupPosition, position)
     return RectaHandler
 
         
@@ -81,18 +80,20 @@ class View(Scene):
              "alecu":zza.exitMenu, 
              "phil?":zza.exitMenu})
              
-        porcion = qgl.scene.Group()
-        v = [ (0,0), (0,10), (10,10) ]
-        porcion.add( leafs.Triangle(v) )
-        v = [ (0,0), (10,10), (10,0), (15,15), (15,0) ]
-        porcion.add( leafs.PorcionMuzza(v) )
-        porcion.translate = -5,0,10
-        self.group.add( porcion )
+        if 0:
+            porcion = qgl.scene.Group()
+            v = [ (0,0), (0,10), (10,10) ]
+            porcion.add( leafs.Triangle(v) )
+            v = [ (0,0), (10,10), (10,0), (15,15), (15,0) ]
+            porcion.add( leafs.PorcionMuzza(v) )
+            porcion.translate = -5,0,10
+            self.group.add( porcion )
 
-        textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
-        ballTexture = qgl.scene.state.Texture(data.filepath(textureFile))
-        v = [ (15,15), (10,0), (0,10) ]
-        self.group.add( ballTexture, leafs.Triangle(v) )
+            textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
+            ballTexture = qgl.scene.state.Texture(data.filepath(textureFile))
+            v = [ (15,15), (10,0), (0,10) ]
+            self.group.add( ballTexture, leafs.Triangle(v) )
+        self.initLineGhost()
         self.accept()
 
     def addLineEv(self, (x1,y1), (x2,y2)):
@@ -219,6 +220,25 @@ class View(Scene):
     @GroupAdd
     def addFloor(self, *a, **kw):
         return self.addSegment(*a, **kw)
+
+    def initLineGhost(self):
+        self.ghostGroup = qgl.scene.Group()
+        self.ghostGroup.scale = (0,0,0)
+        segmentTexture = qgl.scene.state.Texture(data.filepath("rebotador-ghost.png"))
+        segmentQuad = qgl.scene.state.Quad((1,1))
+        self.ghostGroup.add(segmentTexture)
+        self.ghostGroup.add(segmentQuad)
+        self.group.add(self.ghostGroup)
+
+    def showLineGhost(self, (x1, y1), (x2, y2)):
+        dy = y2-y1
+        dx = x2-x1
+        self.ghostGroup.angle = math.degrees(math.atan2(dy, dx))
+        self.ghostGroup.translate = ( x1 + dx/2, y1 + dy/2, 0.0 )
+        self.ghostGroup.scale = (math.hypot(dx,dy)+1, 1.0, 0.0)
+
+    def hideLineGhost(self):
+        self.ghostGroup.scale = (0,0,0)
 
     @GroupAdd
     def addSegment(self, x1, y1, x2, y2, **kw):

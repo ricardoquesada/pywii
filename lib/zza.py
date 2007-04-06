@@ -159,7 +159,6 @@ class xmenu(scene.EventHandler):
             self.show(pos)
                 
     def popup(self, position):
-        print "popping up at...", position
         self.popupPosition = position
         self.worldPopupPosition = self.scene.worldPosFromMouse(position)
         self.scene.push_handler(self)
