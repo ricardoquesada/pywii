@@ -21,6 +21,7 @@ import scene
 import zza
 
 QUAD_HEIGHT=4
+CELESTE_CIELO = (0.09, 0.27, 0.64, 0)
 
 def addBall(theView):
     class AddBall(scene.doNothingHandler):
@@ -68,7 +69,7 @@ class View(Scene):
     def __init__(self, game):
         Scene.__init__(self, game, ORTHOGONAL)
         self.world = world.World()
-        self.root_node.background_color = (70/256.0,197/256.0,220/256.0,1.0)
+        self.root_node.background_color = CELESTE_CIELO
         
         self.setup_level()
         self.camera_x = 0
