@@ -201,8 +201,6 @@ class View(Scene):
         
     @GroupAdd
     def addBall(self,ball):
-        print 2,repr(ball)
-        #self.world.add_ball(ball)
         ballGroup = qgl.scene.Group()
         textureFile=random.choice("calisto.jpg europe.jpg ganimedes.jpg i.jpg jupite.jpg luna.jpg marte.jpg mercurio.jpg tierra.jpg tierraloca.jpg venu.jpg".split())
         ballTexture = qgl.scene.state.Texture(data.filepath(textureFile))
@@ -255,7 +253,7 @@ class View(Scene):
         self.world.add_active( gen )
         genGroup = qgl.scene.Group()
         genGroup.translate = (x, y, 0.0)
-        genTexture = qgl.scene.state.Texture(data.filepath("bola2.png"))
+        genTexture = qgl.scene.state.Texture(data.filepath("generador.png"))
         genQuad = qgl.scene.state.Quad((r*2,r*2))
         genGroup.add(genTexture)
         genGroup.add(genQuad)
