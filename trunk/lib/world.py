@@ -69,7 +69,10 @@ class Generator(GameObject):
         self.max = 10
         self.dt = 0
         self.view = view
-        
+      
+    def __repr__(self):
+        return "<o @ %s>"%(str(self.position))
+                
     def loop(self, dt):
         self.dt += dt
         while self.dt > self.lapse:
@@ -241,6 +244,7 @@ class World:
         
     def add_passive(self, what):
         what.set_world( self )
+        self.add_event(NewObject(what))
         self.passive_to_append.append( what )
         
     def remove_passive(self, what):
@@ -249,6 +253,7 @@ class World:
     
     def add_active(self, what):
         what.set_world( self )
+        self.add_event(NewObject(what))        
         self.active_to_append.append( what )
         
     def remove_active(self, what):
