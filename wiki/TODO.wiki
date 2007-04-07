@@ -1,22 +1,18 @@
-#summary One-sentence summary of this page.
+#summary El TODO final
 
 = TODO list =
 
 TODO List:
-  * Intro
-  * Pasar de nivel
+  * ~~Intro~~
+  * ~~Pasar de nivel~~
+  * You win screen
   * Creditos
-  * Score (algo entretenido)
-  * Tamaño de nube dependiente de algún poder (?)
-  * Música y Sonido
-  * Niveles (hacerlos, pulirlos, coherentes)
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
-
-
+  * ~~Score (algo entretenido)~~
+  * ~~Tamaño de nube dependiente de algún poder (?)~~
+  * ~~Música y Sonido~~
+  * Niveles (hacerlos, pulirlos, coherentes) (revisar)
+  * Fluffier Clouds
+  * HUD no scrolleable
+----
+  * probar en windows
+  * packaging
