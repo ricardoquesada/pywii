@@ -6,10 +6,11 @@ class LevelOne(view.View):
     target = 20
     
     def setup_level(self):
-        self.addGenerator((0,10))
-        self.addSegment(-10,20,10,20) 
-        self.addGoal(0,60,5.) 
-        #self.addFloor(-200)
+        self.world.add_active( Generator((0,10)) )
+        self.world.add_passive( Segment(-10,20,10,20) )
+        self.world.add_passive( Goal(0,60,15.) )
+        self.world.add_passive( Floor(-200) )
+        return 
         view.View.setup_level(self)
 
 class LevelTwo(view.View):
@@ -18,6 +19,11 @@ class LevelTwo(view.View):
     target = 20
     
     def setup_level(self):
+        self.world.add_active( Generator((0,10)) )
+        self.world.add_passive( Segment(-100,20,100,20) )
+        self.world.add_passive( Goal(0,60,15.) )
+        self.world.add_passive( Floor(-200) )
+        return
         self.addGenerator((0,10))
         self.addSegment(-100,20,100,20)
         self.addGoal(0,60,15.)
@@ -34,7 +40,8 @@ class LevelThree(view.View):
         self.world.add_passive( LimitedLifeSegment(-100,20,0,100, life=5) )
         self.world.add_passive( LimitedLifeSegment(0,100,100,20, life=5) )
         self.world.add_passive( Goal(0,60,15.) )
-        view.View.setup_level()
+        self.world.add_passive( Floor(-200) )
+        view.View.setup_level(self)
 
 class LevelFour(view.View):
     lives = 100
@@ -52,5 +59,5 @@ class LevelFour(view.View):
         self.world.add_passive( Goal(0,60,15.) )
         self.world.add_passive( Floor(-200) )
         
-levels=('one',LevelOne), ('two',LevelTwo)
+levels=('one',LevelOne), ('two',LevelTwo), ('three',LevelThree)
 

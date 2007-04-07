@@ -103,7 +103,9 @@ class View(Scene):
         self.accept()
 
     def addLineEv(self, (x1,y1), (x2,y2)):
-        self.addSegment(x1,y1,x2,y2) 
+        #self.addSegment(x1,y1,x2,y2) 
+        segment = world.Segment(x1, y1, x2, y2)
+        self.world.add_passive(segment)
                 
     def addBallEv(self, worldPos):
         ball = world.Ball(euclid.Point2(*worldPos) )
@@ -113,9 +115,9 @@ class View(Scene):
         import sound
         self.world.loop(dt/500.0)
         for evt in self.world.get_events():
-            print evt
+            print 'EVENTO:',evt
             if isinstance(evt, world.Collision):
-                print evt.ball.velocity.magnitude(), evt
+                #print evt.ball.velocity.magnitude(), evt
                 n = evt.ball.velocity.magnitude()/50
                 if (n>1.0):
                     n = 1.0
@@ -125,7 +127,17 @@ class View(Scene):
             if isinstance(evt, world.NewObject):
                 if isinstance(evt.object, world.Ball):
                     self.addBall(evt.object)
-                
+                elif isinstance(evt.object, world.Segment):
+                    self.addSegment(evt.object)    
+                elif isinstance(evt.object, world.Generator):
+                    self.addGenerator(evt.object)
+                elif isinstance(evt.object, world.Goal):
+                    self.addGoal(evt.object)
+                else:
+                    print repr(evt.object)        
+                    print evt.object    
+                    print evt.object.__class__
+                    raise "Unknown Object"
         self._update_camera(pygame.mouse.get_pos())
 
     def _update_camera(self, pos):
@@ -251,8 +263,60 @@ class View(Scene):
         self.ghostGroup.scale = (0,0,0)
 
     @GroupAdd
-    def addSegment(self, x1, y1, x2, y2, **kw):
-        segment = world.Segment(x1, y1, x2, y2, **kw)
+    def addSegment(self, segment):
+        #def addSegment(self, x1, y1, x2, y2, **kw):
+        #segment = world.Segment(x1, y1, x2, y2, **kw)
+        #self.world.add_passive( segment )
+        x1,y1 = segment.segment.p.x, segment.segment.p.y
+        dx,dy = segment.segment.v.x, segment.segment.v.y
+        
+        segmentGroup = qgl.scene.Group()
+        #dy = y2-y1
+        #dx = x2-x1
+        segmentGroup.angle = math.degrees(math.atan2(dy, dx))
+        segmentGroup.translate = ( x1 + dx/2, y1 + dy/2, 0.0 )
+        segmentTexture = qgl.scene.state.Texture(data.filepath("rebotador.png"))
+        segmentQuad = qgl.scene.state.Quad((math.hypot(dx,dy)+1,QUAD_HEIGHT))
+        segmentGroup.add(segmentTexture)
+        segmentGroup.add(segmentQuad)
+        segment.group = segmentGroup
+        return segmentGroup
+        
+#    def addGoal(self, x, y, r):
+#        goal = world.Goal(x, y, r)
+#        self.world.add_passive( goal )
+    @GroupAdd
+    def addGoal(self, goal):
+        x,y=goal.segment.c.x, goal.segment.c.y
+        r=goal.segment.r
+        goalGroup = qgl.scene.Group()
+        goalGroup.translate = (x, y, 0.0)
+        goalTexture = qgl.scene.state.Texture(data.filepath("bola2.png"))
+        goalQuad = qgl.scene.state.Quad((r*2,r*2))
+        goalGroup.add(goalTexture)
+        goalGroup.add(goalQuad)
+        goal.group = goalGroup
+        return goalGroup
+
+    @GroupAdd
+    def addGenerator(self, gen): #pos, r=1):
+        #x,y=pos
+        #gen = world.Generator(pos,view=self)
+        #self.world.add_active( gen )
+        r=2
+        x,y = gen.position
+        genGroup = qgl.scene.Group()
+        genGroup.translate = (x, y, 0.0)
+        genTexture = qgl.scene.state.Texture(data.filepath("generador.png"))
+        genQuad = qgl.scene.state.Quad((r*2,r*2))
+        genGroup.add(genTexture)
+        genGroup.add(genQuad)
+        gen.group = genGroup
+        return genGroup
+
+    @GroupAdd
+    def addLimitedLifeSegment(self, x1, y1, x2, y2, **kw):
+        segment = world.LimitedLifeSegment(x1, y1, x2, y2, **kw)
         self.world.add_passive( segment )
         segmentGroup = qgl.scene.Group()
         dy = y2-y1
@@ -265,35 +329,6 @@ class View(Scene):
         segmentGroup.add(segmentQuad)
         segment.group = segmentGroup
         return segmentGroup
-        
-    @GroupAdd
-    def addGoal(self, x, y, r):
-        goal = world.Goal(x, y, r)
-        self.world.add_passive( goal )
-        goalGroup = qgl.scene.Group()
-        goalGroup.translate = (x, y, 0.0)
-        goalTexture = qgl.scene.state.Texture(data.filepath("bola2.png"))
-        goalQuad = qgl.scene.state.Quad((r*2,r*2))
-        goalGroup.add(goalTexture)
-        goalGroup.add(goalQuad)
-        goal.group = goalGroup
-        return goalGroup
-
-    @GroupAdd
-    def addGenerator(self, pos, r=1):
-        x,y=pos
-        gen = world.Generator(pos,view=self)
-        self.world.add_active( gen )
-        genGroup = qgl.scene.Group()
-        genGroup.translate = (x, y, 0.0)
-        genTexture = qgl.scene.state.Texture(data.filepath("generador.png"))
-        genQuad = qgl.scene.state.Quad((r*2,r*2))
-        genGroup.add(genTexture)
-        genGroup.add(genQuad)
-        gen.group = genGroup
-        return genGroup
-
-
 
 if __name__ == '__main__':
     import game
