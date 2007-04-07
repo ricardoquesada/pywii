@@ -14,6 +14,7 @@ TODO List:
   * Fluffier Clouds
   * HUD no scrolleable
   * Al ganar se cuelga
+  * Beep si no podes colocar la nube
 ----
   * probar en windows
   * packaging
