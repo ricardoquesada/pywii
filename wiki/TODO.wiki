@@ -1,16 +1,15 @@
 #summary One-sentence summary of this page.
 
-= Introduction =
+= TODO list =
 
-TODO list
-
-. Intro (riq)
-. Pasar de nivel (tenuki)
-. Creditos
-. Score (algo entretenido)
-. Tamaño de nube dependiente de algún poder (?)
-. Música y Sonido
-. Niveles (hacerlos, pulirlos, coherentes)
+TODO List:
+  * Intro
+  * Pasar de nivel
+  * Creditos
+  * Score (algo entretenido)
+  * Tamaño de nube dependiente de algún poder (?)
+  * Música y Sonido
+  * Niveles (hacerlos, pulirlos, coherentes)
 
 
 = Details =
@@ -19,3 +18,5 @@ Add your content here.  Format your content with:
   * Text in *bold* or _italic_
   * Headings, paragraphs, and lists
   * Automatic links to other wiki pages
+
+
