@@ -13,6 +13,7 @@ TODO List:
   * Niveles (hacerlos, pulirlos, coherentes) (revisar)
   * Fluffier Clouds
   * HUD no scrolleable
+  * Al ganar se cuelga
 ----
   * probar en windows
   * packaging
